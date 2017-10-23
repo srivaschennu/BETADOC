@@ -69,6 +69,10 @@ mcsoutcome = outcome;
 mcsoutcome(crsdiag == 0 & crsdiag > 2) = NaN;
 
 groupvar = eval(param.group);
+
+% disable non-tbi
+groupvar(etiology == 1) = NaN;
+
 groups = unique(groupvar(~isnan(groupvar)));
 
 colorlist = [
@@ -112,6 +116,8 @@ elseif strcmpi(measure,'refdiag')
     testdata = refdiag;
 elseif strcmpi(measure,'crs')
     testdata = crs;
+elseif strcmpi(measure,'etiology')
+    testdata = etiology;
 else
     trange = [0.9 0.1];
     load(sprintf('%s%s//graphdata_%s_%s.mat',filepath,conntype,listname,conntype),'graph','tvals');

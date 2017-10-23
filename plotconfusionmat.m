@@ -13,7 +13,8 @@ rowsum = sum(confmat,2);
 confmat = confmat*100 ./ repmat(rowsum,1,size(confmat,2));
 
 figure('Color','white');
-imshow(confmat,'InitialMagnification',3000);
+himage = imshow(confmat,jet,'DisplayRange',[0 100],'InitialMagnification',3000);
+himage.CDataMapping = 'scaled';
 
 figpos = get(gcf,'Position');
 figpos(3:4) = 1000;
@@ -23,7 +24,7 @@ set(gca,'YDir','normal','Visible','on',...
     'YTick',1:size(confmat,1),'YTickLabel',cell(size(groupnames)),...
     'FontName',fontname,'FontSize',fontsize-2);
 
-colormap(jet); colorbar('EastOutside','FontSize',fontsize-2);
+colorbar('EastOutside','FontSize',fontsize-2);
 caxis(param.clim);
 
 for c1 = 1:size(confmat,1)

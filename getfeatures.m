@@ -29,7 +29,7 @@ elseif strcmpi(measure,'mean')
 elseif strcmpi(measure,'refdiag')
     features = refdiag;
 else
-    trange = [0.9 0.1];
+    trange = [0.75 0.25];
     load(sprintf('%s%s//graphdata_%s_%s.mat',filepath,conntype,listname,conntype),'graph','tvals');
     trange = (tvals <= trange(1) & tvals >= trange(2));
     plottvals = tvals(trange);

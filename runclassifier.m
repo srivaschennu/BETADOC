@@ -55,6 +55,8 @@ pairlist = [1 2 3 6 7 10];
 pairlist = 1;
 load(sprintf('stats_%s_%s.mat',listname,param.group),'stats','featlist');
 
+etioselect = (etiology == 1);
+    
 selfeat = {};
 for g = 1:size(grouppairs,1)
     groups = grouppairs(g,:);
@@ -62,7 +64,7 @@ for g = 1:size(grouppairs,1)
     bestfeat = 18;
     
     selgroupidx = ismember(groupvar,groups);
-    thisgroupvar = groupvar(selgroupidx);
+    thisgroupvar = groupvar(selgroupidx & etioselect);
     [~,~,thisgroupvar] = unique(thisgroupvar);
     thisgroupvar = thisgroupvar-1;
     
@@ -74,7 +76,7 @@ for g = 1:size(grouppairs,1)
     bandidx = featlist{bestfeat,3};
     
     features = getfeatures(listname,conntype,measure,bandidx);
-    features = features(selgroupidx,:,:);
+    features = features(selgroupidx & etioselect,:,:);
     
     clsyfyr(g) = buildsvm(features,thisgroupvar,'runpca','false');
     
