@@ -2,7 +2,7 @@ function clsyfyr = buildecc(listname,varargin)
 
 param = finputcheck(varargin, {
     'mode', 'string', {'eval','test'}, 'eval'; ...
-    'groups', 'real', [], [0 1 2]; ...
+    'groups', 'real', [], [0 1 2 3]; ...
     });
 
 loadsubj
@@ -31,32 +31,38 @@ admvscrs(refaware > 0 & crsaware > 0) = 1;
 admvscrs(refaware == 0 & crsaware > 0) = 2;
 
 groupvar = eval(group);
-groups = param.groups;
+if strcmp(param.mode,'eval')
+    groups = param.groups;
+elseif strcmp(param.mode,'test')
+    groups = unique(groupvar(~isnan(groupvar)));
+end
 
-etioselect = (etiology == 1);
 selgroupidx = ismember(groupvar,groups);
-groupvar = groupvar(selgroupidx & etioselect);
+groupvar = groupvar(selgroupidx);
 
 clsyfyrlist = {
-    'UWS_MCS-'  [1 -1  0]
-    'MCS-_MCS+' [0  1 -1]
-%     'UWS_MCS+'  [1  0 -1]
+    'UWS_MCS-'  [1 -1  0  0]
+    'UWS_MCS+'  [1  0 -1  0]
+    'UWS_EMCS'  [1  0  0 -1]
+    'MCS-_MCS+' [0  1 -1  0]
+    'MCS-_EMCS' [0  1  0 -1]
+    'MCS+_EMCS' [0  0  1 -1]
     };
 
 predlabels = NaN(size(groupvar,1),size(clsyfyrlist,1));
-
 ecccode = NaN(length(param.groups),size(clsyfyrlist,1));
+
+load(sprintf('clsyfyr_%s.mat',group));
+
 for c = 1:size(clsyfyrlist,1)
-    bincls = load(sprintf('clsyfyr_%s_%s.mat',group,clsyfyrlist{c,1}));
     if strcmp(param.mode,'eval')
-        predlabels(groupvar == bincls.grouppairs(1) | groupvar == bincls.grouppairs(2),c) = bincls.clsyfyr.predlabels;
+        predlabels(groupvar == grouppairs(c,1) | groupvar == grouppairs(c,2),c) = clsyfyr(c).predlabels;
     elseif strcmp(param.mode,'test')
-        disp(bincls.selfeat(1,:));
-        features = getfeatures(listname,bincls.selfeat{1:3});
-        features = features(selgroupidx & etioselect,:,:);
+        disp(selfeat(c,:));
+        features = getfeatures(listname,selfeat{c,1:3});
         rng('default');
-        [~,postProb] = predict(fitSVMPosterior(bincls.clsyfyr.model),squeeze(features(:,bincls.clsyfyr.D,:)));
-        predlabels(:,c) = double(postProb(:,2) >= bincls.clsyfyr.bestthresh);
+        [~,postProb] = predict(fitSVMPosterior(clsyfyr(c).model),squeeze(features(:,clsyfyr(c).D,:)));
+        predlabels(:,c) = double(postProb(:,2) >= clsyfyr(c).bestthresh);
     end
     ecccode(:,c) = clsyfyrlist{c,2};
 end
@@ -66,14 +72,15 @@ predlabels(isnan(predlabels)) = 0;
 ecclabels = NaN(size(groupvar));
 
 for g = 1:size(groupvar,1)
-    dist = zeros(size(ecccode,1),1);
     for k = 1:size(ecccode,1)
-        for l = 1:size(ecccode,2)
-            dist(k) = dist(k) + abs(ecccode(k,l)) * lossfunc(ecccode(k,l),predlabels(g,l));
+        dist(k) = 0;
+        for j = 1:size(ecccode,2)
+            if ecccode(k,j) ~= 0
+                dist(k) = dist(k) + lossfunc(ecccode(k,j),predlabels(g,j));
+            end
         end
-        dist(k) = dist(k) / sum(abs(ecccode(k,:)));
     end
-    [~,ecclabels(g)] = min(dist);
+    [~,ecclabels(g)] = min(dist/sum(ecccode(k,:)));
 end
 
 ecclabels = ecclabels - 1;
@@ -83,12 +90,12 @@ if strcmp(param.mode,'eval')
     clsyfyr.trainlabels = groupvar;
     clsyfyr.predlabels = ecclabels;
     [clsyfyr.confmat,clsyfyr.chi2,clsyfyr.chi2pval] = crosstab(groupvar,ecclabels);
+    clsyfyr.accu = sum(groupvar == ecclabels) * 100/length(ecclabels);
     save('clsyfyr_ecc.mat','clsyfyr','groups');
+    fprintf('Accuracy = %.1f%%.\n', clsyfyr.accu);
 elseif strcmp(param.mode,'test')
-    results.trainlabels = groupvar;
-    results.predlabels = ecclabels;
-    [results.confmat,results.chi2,results.chi2pval] = crosstab(groupvar,ecclabels);
-    save('results_ecc.mat','results','groups');    
+    disp(ecclabels);
+    fprintf('Accuracy = %.1f%%.\n', sum(groupvar == ecclabels) * 100/length(ecclabels));
 end
 
 function loss = lossfunc(y,s)

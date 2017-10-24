@@ -21,8 +21,6 @@ end
 
 predlabels = double(postProb(:,2) >= clsyfyr.bestthresh);
 
-[results.cm,results.chi2,results.chi2pval] = crosstab(testlabels,predlabels);
+[results.confmat,results.chi2,results.chi2pval] = crosstab(testlabels,predlabels);
 results.accu = round(sum(testlabels==predlabels)*100/length(testlabels));
-
-
 end

@@ -71,7 +71,7 @@ mcsoutcome(crsdiag == 0 & crsdiag > 2) = NaN;
 groupvar = eval(param.group);
 
 % disable non-tbi
-groupvar(etiology == 1) = NaN;
+groupvar(etiology == 0) = NaN;
 
 groups = unique(groupvar(~isnan(groupvar)));
 
