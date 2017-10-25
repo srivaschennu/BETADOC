@@ -7,7 +7,11 @@ param = finputcheck(varargin, {
 
 features = permute(features,[1 3 2]);
 
-clsyfyrparams = {'Standardize',true,'KernelFunction','RBF'};
+clsyfyrparams = {'Standardize',true};
+
+%Non-linear RBF kernel
+clsyfyrparams = cat(2,clsyfyrparams, {'KernelFunction','RBF'});
+
 cvoption = {'KFold',4};
 % cvoption = {'Leaveout','on'};
 
@@ -26,19 +30,19 @@ trainlabels = groupvar;
 % testfeatures = features(cvp.test(1),:,:);
 % testlabels = groupvar(cvp.test(1),1);
 
-%% start parallel pool
-curpool = gcp('nocreate');
-if isempty(curpool)
-%     parpool(parallel.defaultClusterProfile,size(features,3));
-    parpool(parallel.defaultClusterProfile,3);
-elseif curpool.NumWorkers ~= size(features,3)
-    delete(curpool);
-%     parpool(parallel.defaultClusterProfile,size(features,3));
-    parpool(parallel.defaultClusterProfile,3);
-end
+% %% start parallel pool
+% curpool = gcp('nocreate');
+% if isempty(curpool)
+% %     parpool(parallel.defaultClusterProfile,size(features,3));
+%     parpool(parallel.defaultClusterProfile,3);
+% elseif curpool.NumWorkers ~= size(features,3)
+%     delete(curpool);
+% %     parpool(parallel.defaultClusterProfile,size(features,3));
+%     parpool(parallel.defaultClusterProfile,3);
+% end
 
 %% search through parameters for best cross-validated classifier
-parfor d = 1:size(features,3)
+for d = 1:size(features,3)
     rng('default');
     warning('off','stats:glmfit:IterationLimit');
     thisfeat = trainfeatures(:,:,d);

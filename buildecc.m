@@ -1,12 +1,12 @@
 function clsyfyr = buildecc(listname,varargin)
 
 param = finputcheck(varargin, {
+    'group', 'string', [], 'crsdiag'; ...    
     'mode', 'string', {'eval','test'}, 'eval'; ...
     'groups', 'real', [], [0 1 2]; ...
     });
 
 loadsubj
-group = 'crsdiag';
 
 subjlist = eval(listname);
 refdiag = cell2mat(subjlist(:,2));
@@ -30,7 +30,7 @@ admvscrs(refaware == 0 & crsaware == 0) = 0;
 admvscrs(refaware > 0 & crsaware > 0) = 1;
 admvscrs(refaware == 0 & crsaware > 0) = 2;
 
-groupvar = eval(group);
+groupvar = eval(param.group);
 groups = param.groups;
 
 etioselect = (etiology == 1);
@@ -38,16 +38,16 @@ selgroupidx = ismember(groupvar,groups);
 groupvar = groupvar(selgroupidx & etioselect);
 
 clsyfyrlist = {
-    'UWS_MCS-'  [1 -1  0]
-    'MCS-_MCS+' [0  1 -1]
-%     'UWS_MCS+'  [1  0 -1]
+    'UWS_MCS-'  [-1  1  0]
+    'MCS-_MCS+' [0  -1  1]
+%     'UWS_MCS+'  [-1  0  1]
     };
 
 predlabels = NaN(size(groupvar,1),size(clsyfyrlist,1));
 
 ecccode = NaN(length(param.groups),size(clsyfyrlist,1));
 for c = 1:size(clsyfyrlist,1)
-    bincls = load(sprintf('clsyfyr_%s_%s.mat',group,clsyfyrlist{c,1}));
+    bincls = load(sprintf('clsyfyr_%s_linear_%s.mat',param.group,clsyfyrlist{c,1}));
     if strcmp(param.mode,'eval')
         predlabels(groupvar == bincls.grouppairs(1) | groupvar == bincls.grouppairs(2),c) = bincls.clsyfyr.predlabels;
     elseif strcmp(param.mode,'test')
@@ -69,7 +69,7 @@ for g = 1:size(groupvar,1)
     dist = zeros(size(ecccode,1),1);
     for k = 1:size(ecccode,1)
         for l = 1:size(ecccode,2)
-            dist(k) = dist(k) + abs(ecccode(k,l)) * lossfunc(ecccode(k,l),predlabels(g,l));
+            dist(k) = dist(k) + (abs(ecccode(k,l)) * lossfunc(ecccode(k,l),predlabels(g,l)));
         end
         dist(k) = dist(k) / sum(abs(ecccode(k,:)));
     end

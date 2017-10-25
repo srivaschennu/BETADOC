@@ -43,8 +43,8 @@ bands = {
     };
 
 grouppairs = [
-%     0     1
-    0     2
+    0     1
+%     0     2
 %     0     3
 %     1     2
 %     1     3
@@ -61,7 +61,7 @@ selfeat = {};
 for g = 1:size(grouppairs,1)
     groups = grouppairs(g,:);
     [~,bestfeat] = max(cell2mat({stats(:,pairlist(g)).auc}));
-    bestfeat = 15;
+    bestfeat = 18;
     
     selgroupidx = ismember(groupvar,groups);
     thisgroupvar = groupvar(selgroupidx & etioselect);
