@@ -47,7 +47,7 @@ predlabels = NaN(size(groupvar,1),size(clsyfyrlist,1));
 
 ecccode = NaN(length(param.groups),size(clsyfyrlist,1));
 for c = 1:size(clsyfyrlist,1)
-    bincls = load(sprintf('clsyfyr_%s_linear_%s.mat',param.group,clsyfyrlist{c,1}));
+    bincls = load(sprintf('clsyfyr_%s_%s.mat',param.group,clsyfyrlist{c,1}));
     if strcmp(param.mode,'eval')
         predlabels(groupvar == bincls.grouppairs(1) | groupvar == bincls.grouppairs(2),c) = bincls.clsyfyr.predlabels;
     elseif strcmp(param.mode,'test')
@@ -65,6 +65,8 @@ predlabels(predlabels == 0) = -1;
 predlabels(isnan(predlabels)) = 0;
 ecclabels = NaN(size(groupvar));
 
+%loss weighted decoding with an exponential loss function, Allwein et al.
+%(2000)
 for g = 1:size(groupvar,1)
     dist = zeros(size(ecccode,1),1);
     for k = 1:size(ecccode,1)

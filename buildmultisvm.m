@@ -17,25 +17,9 @@ Kvals = unique(sort(cat(2, 10.^(-3:3), 5.^(-3:3), 2.^(-5:5))));
 
 trainfeatures = features;
 trainlabels = groupvar;
-% %% put test data in a 'locked cupboard'
-% cvp = cvpartition(groupvar,'KFold',4);
-% trainfeatures = features(cvp.training(1),:,:);
-% trainlabels = groupvar(cvp.training(1),1);
-% testfeatures = features(cvp.test(1),:,:);
-% testlabels = groupvar(cvp.test(1),1);
-
-% %% start parallel pool
-curpool = gcp('nocreate');
-parclust = parcluster(parallel.defaultClusterProfile);
-if isempty(curpool)
-    parpool(parallel.defaultClusterProfile,min(parclust.NumWorkers,size(features,3)));
-elseif curpool.NumWorkers ~= min(parclust.NumWorkers,size(features,3))
-    delete(curpool);
-    parpool(parallel.defaultClusterProfile,size(features,3));
-end
 
 %% search through parameters for best cross-validated classifier
-parfor d = 1:size(features,3)
+for d = 1:size(features,3)
     rng('default');
     warning('off','stats:glmfit:IterationLimit');
     thisfeat = trainfeatures(:,:,d);
