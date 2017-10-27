@@ -33,7 +33,7 @@ admvscrs(refaware == 0 & crsaware == 0) = 0;
 admvscrs(refaware > 0 & crsaware > 0) = 1;
 admvscrs(refaware == 0 & crsaware > 0) = 2;
 
-etioselect = (etiology == 1);
+etioselect = ones(size(etiology,1),1);
 
 groupvar = eval(param.group);
 
