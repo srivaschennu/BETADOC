@@ -3,7 +3,7 @@ function clsyfyr = buildecc(listname,varargin)
 param = finputcheck(varargin, {
     'group', 'string', [], 'crsdiag'; ...    
     'mode', 'string', {'eval','test'}, 'eval'; ...
-    'groups', 'real', [], [0 1 2]; ...
+    'groups', 'real', [], [0 1 2 3]; ...
     });
 
 loadsubj
@@ -37,28 +37,24 @@ etioselect = (etiology == 1);
 selgroupidx = ismember(groupvar,groups);
 groupvar = groupvar(selgroupidx & etioselect);
 
-clsyfyrlist = {
-    'UWS_MCS-'  [-1  1  0]
-    'MCS-_MCS+' [0  -1  1]
-%     'UWS_MCS+'  [-1  0  1]
-    };
+load(sprintf('clsyfyr_ecc_%s.mat',param.group));
 
-predlabels = NaN(size(groupvar,1),size(clsyfyrlist,1));
+predlabels = NaN(size(groupvar,1),size(clsyfyr,1));
+ecccode = zeros(length(param.groups),size(clsyfyr,1));
 
-ecccode = NaN(length(param.groups),size(clsyfyrlist,1));
-for c = 1:size(clsyfyrlist,1)
-    bincls = load(sprintf('clsyfyr_%s_%s.mat',param.group,clsyfyrlist{c,1}));
+for c = 1:size(clsyfyr,1)
     if strcmp(param.mode,'eval')
-        predlabels(groupvar == bincls.grouppairs(1) | groupvar == bincls.grouppairs(2),c) = bincls.clsyfyr.predlabels;
+        predlabels(groupvar == clsyfyrparam{c,4} | groupvar == clsyfyrparam{c,5},c) = clsyfyr(c).predlabels;
     elseif strcmp(param.mode,'test')
-        disp(bincls.selfeat(1,:));
-        features = getfeatures(listname,bincls.selfeat{1:3});
+        disp(clsyfyrparam(c,1:3));
+        features = getfeatures(listname,clsyfyrparam{c,1:3});
         features = features(selgroupidx & etioselect,:,:);
         rng('default');
-        [~,postProb] = predict(fitSVMPosterior(bincls.clsyfyr.model),squeeze(features(:,bincls.clsyfyr.D,:)));
-        predlabels(:,c) = double(postProb(:,2) >= bincls.clsyfyr.bestthresh);
+        [~,postProb] = predict(fitSVMPosterior(clsyfyr(c).model),squeeze(features(:,clsyfyr(c).D,:)));
+        predlabels(:,c) = double(postProb(:,2) >= clsyfyr(c).bestthresh);
     end
-    ecccode(:,c) = clsyfyrlist{c,2};
+    ecccode(clsyfyrparam{c,4}+1,c) = -1;
+    ecccode(clsyfyrparam{c,5}+1,c) = 1;
 end
 
 predlabels(predlabels == 0) = -1;
@@ -73,7 +69,7 @@ for g = 1:size(groupvar,1)
         for l = 1:size(ecccode,2)
             dist(k) = dist(k) + (abs(ecccode(k,l)) * lossfunc(ecccode(k,l),predlabels(g,l)));
         end
-        dist(k) = dist(k) / sum(abs(ecccode(k,:)));
+%         dist(k) = dist(k) / sum(abs(ecccode(k,:)));
     end
     [~,ecclabels(g)] = min(dist);
 end

@@ -33,7 +33,7 @@ admvscrs(refaware == 0 & crsaware == 0) = 0;
 admvscrs(refaware > 0 & crsaware > 0) = 1;
 admvscrs(refaware == 0 & crsaware > 0) = 2;
 
-etioselect = ones(size(etiology,1),1);
+etioselect = (etiology == 1);
 
 groupvar = eval(param.group);
 
@@ -78,4 +78,5 @@ end
 bel = bel ./ repmat(sum(bel,2),1,size(bel,2));
 [~,predlabels] = max(bel,[],2);
 predlabels = predlabels-1;
+results.predlabels = predlabels;
 [results.confmat,results.chi2,results.chi2pval] = crosstab(groupvar,predlabels);
