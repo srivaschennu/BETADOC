@@ -71,7 +71,7 @@ mcsoutcome(crsdiag == 0 & crsdiag > 2) = NaN;
 groupvar = eval(param.group);
 
 % disable non-tbi
-groupvar(etiology == 0) = NaN;
+% groupvar(etiology == 0) = NaN;
 
 groups = unique(groupvar(~isnan(groupvar)));
 
@@ -143,7 +143,7 @@ else
     elseif strcmpi(measure,'centrality')
         testdata = squeeze(std(graph{m,weiorbin}(:,bandidx,trange,:),[],4));
     elseif strcmpi(measure,'mutual information')
-        testdata = squeeze(mean(graph{m,weiorbin}(:,crsdiag == 5,bandidx,trange),2));
+        testdata = squeeze(graph{m,weiorbin}(:,bandidx,trange));
     elseif strcmpi(measure,'participation coefficient') || strcmpi(measure,'degree')
 %         testdata = squeeze(zscore(graph{m,weiorbin}(:,bandidx,trange,:),0,4));
 %         testdata = mean(testdata(:,:,ismember({sortedlocs.labels},eval(param.changroup))),3);
