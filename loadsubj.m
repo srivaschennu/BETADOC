@@ -231,12 +231,12 @@ lis = patlist(cell2mat(patlist(:,3)) == 4,:);
 
 betadoc = {
     %'N',                     'Adm diag','CRS Diag',       'TBI?',    'Age',        'male', 'days onset', 'CRS-R score', 'auditory',    'visual',  'motor', 'verbal', 'communication', 'arousal', 'Trajectory Grouping' 
-    'p01_A_16_S1'                NaN             1           0           21          0           1110            9           1           3           2           1           0           2              3
-    'p01_A_16_S2'                NaN             1           0           21          0           1189            10          2           3           2           1           0           2              3
-    'p01_A_16_S3'                NaN             1           0           21          0           1287            9           1           3           2           1           0           2              3
-    'p01_A_16_S4'                NaN             2           0           22          0           1392            12          3           3           2           2           0           2              3
-    'p01_A_16_S5'                NaN             2           0           22          0           1482            12          3			 3			 2			 2			 0			 2              3
-    'p01_A_16_S6'                NaN             2           0           22          0           1573            16          3			 5			 2			 2			 1			 3              3
+    'p01_A_16_S1'                NaN             1           0           21          0           1110            9           1           3           2           1           0           2              2
+    'p01_A_16_S2'                NaN             1           0           21          0           1189            10          2           3           2           1           0           2              2
+    'p01_A_16_S3'                NaN             1           0           21          0           1287            9           1           3           2           1           0           2              2
+    'p01_A_16_S4'                NaN             2           0           22          0           1392            12          3           3           2           2           0           2              2
+    'p01_A_16_S5'                NaN             2           0           22          0           1482            12          3			 3			 2			 2			 0			 2              2
+    'p01_A_16_S6'                NaN             2           0           22          0           1573            16          3			 5			 2			 2			 1			 3              2
     'p02_J_16_S1'                NaN             0           0           42          0           631             6           1           1           1           1           0           2              2
     'p02_J_16_S2'                NaN             1           0           42          0           706             8           1           3           1           1           0           2              2
     'p02_J_16_S3'                NaN             1           0           42          0           799             8           1           3           1           1           0           2              2
@@ -259,15 +259,15 @@ betadoc = {
     'p05_G_16_S5'                NaN             0           0           31          0           688             6           1           0           2           1           0           2              1
     'p05_G_16_S6'                NaN             1           0           31          0           771             9           1			 3			 2			 1			 0			 2              1
     'p05_G_16_S7'                NaN             0           0           32          0           861             6           1			 0			 2			 1			 0			 2              1
-    'p06_G_16_S1'                NaN             3           0           68          1           244             20          3           4           5           3           2           3              3
-    'p06_G_16_S2'                NaN             3           0           69          1           300             23          4           5           6           3           2           3              3
-    'p06_G_16_S3'                NaN             2           0           70          1           637             17          4           4           2			 3			 1			 3              3
-    'p07_G_16_S1'                0               0           1           41          1           409             6           1           0           2           1           0           2              3
-    'p07_G_16_S2'                0               0           1           41          1           485             5           1           0           2           0           0           2              3
-    'p07_G_16_S3'                0               0           1           42          1           585             6           1           0           2           1           0           2              3
-    'p07_G_16_S4'                0               0           1           42          1           688             6           1           0           2           1           0           2              3
-    'p07_G_16_S5'                0               1           1           42          1           758             7           1			 2			 2			 1			 0			 1              3
-    'p07_G_16_S6'                0               1           1           42          1           849             9           1			 3			 2			 1			 0			 2              3
+    'p06_G_16_S1'                NaN             3           0           68          1           244             20          3           4           5           3           2           3              NaN
+    'p06_G_16_S2'                NaN             3           0           69          1           300             23          4           5           6           3           2           3              NaN
+    'p06_G_16_S3'                NaN             2           0           70          1           637             17          4           4           2			 3			 1			 3              NaN
+    'p07_G_16_S1'                0               0           1           41          1           409             6           1           0           2           1           0           2              NaN
+    'p07_G_16_S2'                0               0           1           41          1           485             5           1           0           2           0           0           2              NaN
+    'p07_G_16_S3'                0               0           1           42          1           585             6           1           0           2           1           0           2              NaN
+    'p07_G_16_S4'                0               0           1           42          1           688             6           1           0           2           1           0           2              NaN
+    'p07_G_16_S5'                0               1           1           42          1           758             7           1			 2			 2			 1			 0			 1              NaN
+    'p07_G_16_S6'                0               1           1           42          1           849             9           1			 3			 2			 1			 0			 2              NaN
     'p08_G_16_S1'                NaN             0           0           75          1           539             5           1           0           1           1           0           2              3 
     'p08_G_16_S2'                NaN             0           0           76          1           623             7           1           1           2           1           0           2              3
     'p08_G_16_S3'                NaN             0           0           76          1           715             4           0           0           2           1           0           1              3
@@ -363,4 +363,4 @@ betadoc = {
 
 %add NaN columns for Tennis and PET, so that BETADOC table matches PATLIST
 %in structure
-betadoc = cat(2,betadoc(:,1:3),num2cell(ones(size(betadoc,1),2)),betadoc(:,4:end));
+betadoc = cat(2,betadoc(:,1:3),num2cell(ones(size(betadoc,1),2)),betadoc(:,4:7),num2cell(ones(size(betadoc,1),1)),betadoc(:,8:end));

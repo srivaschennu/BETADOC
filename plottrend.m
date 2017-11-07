@@ -81,12 +81,17 @@ testdata = mean(testdata,2);
 figure('Color','white');
 hold all
 
-for s = uniqsubj'
-    plotdata = testdata(subjnum == s);
+alldata = {};
+for s = 1:length(uniqsubj)
+    plotdata = testdata(subjnum == uniqsubj(s));
 %     plotdata = plotdata - plotdata(1);
-%     testdata(subjnum == s) = plotdata;
-    legendoff(plot(sessnum(subjnum == s),plotdata,'LineWidth',1,'Color','black'));
+%     testdata(subjnum == uniqsubj(s)) = plotdata;
+    legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1));
+    alldata(s,sessnum(subjnum == uniqsubj(s))) = num2cell(plotdata);
 end
+
+alldata = cellfun(@checkval, alldata);
+legendoff(plot(1:size(alldata,2),nanmedian(alldata,1),'LineWidth',3,'Color','black'));
 
 for g = groups'
     scatter(sessnum(groupvar == g),testdata(groupvar == g),150,...
@@ -100,3 +105,8 @@ for i = 1:4
     icons(i+4).Children.MarkerSize = 12;
 end
 ylabel(param.ylabel);
+
+function x = checkval(x)
+if isempty(x)
+    x = NaN;
+end

@@ -112,6 +112,7 @@ chanlocs3d = chanlocs3d(chanidx,:);
 xlim('auto'); ylim('auto'); zlim('auto');
 
 cidx = round(matrix .* size(cmap,1));
+cidx(cidx <= 0) = 1;
 cidx(cidx > size(cmap,1)) = size(cmap,1);
 
 for r = 1:size(matrix,1)

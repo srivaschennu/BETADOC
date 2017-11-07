@@ -38,4 +38,4 @@ vsoutcome(crsdiag > 0) = NaN;
 mcsoutcome = outcome;
 mcsoutcome(crsdiag == 0 & crsdiag > 2) = NaN;
 
-trajectory = cell2mat(subjlist(:,17));
+trajectory = cell2mat(subjlist(:,end));

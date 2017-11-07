@@ -20,8 +20,6 @@ param = finputcheck(varargin, {
 fontname = 'Helvetica';
 fontsize = 24;
 
-
-
 loadpaths
 loadsubj
 changroups
