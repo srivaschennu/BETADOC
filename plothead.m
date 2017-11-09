@@ -28,7 +28,7 @@ cohmat = squeeze(matrix(bandidx,:,:));
 erange = [0 1];
 vrange = [0 0.4]; % changes the plot scaling (colours)
 
-minfo = plotgraph3d(cohmat,sortedlocs,'plotqt',plotqt,'escale',erange,'vscale',vrange,'cshift',0.4,'numcolors',5);
+minfo = plotgraph3d(cohmat,sortedlocs,'plotqt',plotqt,'escale',erange,'vscale',vrange,'cshift',0.4,'numcolors',5,'arcs','module');
 fprintf('%s: %s band - number of modules: %d\n',basename,bands{bandidx},length(unique(minfo)));
 set(gcf,'Name',sprintf('group %s: %s band',basename,bands{bandidx}));
 camva(8);

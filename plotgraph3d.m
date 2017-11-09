@@ -24,7 +24,7 @@ param = finputcheck(varargin, {
 %%%%% VISUAL FEATURES
 
 % range of line heights
-lhfactor = 1.5;
+lhfactor = 1.25;
 
 
 %%%%%%
