@@ -364,3 +364,4 @@ betadoc = {
 %add NaN columns for Tennis and PET, so that BETADOC table matches PATLIST
 %in structure
 betadoc = cat(2,betadoc(:,1:3),num2cell(ones(size(betadoc,1),2)),betadoc(:,4:7),num2cell(ones(size(betadoc,1),1)),betadoc(:,8:end));
+betactrl = cat(1,betadoc(:,1:size(ctrllist,2)),ctrllist);

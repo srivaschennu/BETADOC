@@ -6,7 +6,7 @@ param = finputcheck(varargin, {
     'groupnames', 'cell', {}, {'UWS','MCS-','MCS+','EMCS'}; ...
     'changroup', 'string', [], 'all'; ...
     'changroup2', 'string', [], 'all'; ...
-    'xlabel', 'string', [], ''; ...
+    'xlabel', 'string', [], 'Assessment'; ...
     'ylabel', 'string', [], measures{1}; ...
     'xlim', 'real', [], []; ...
     'ylim', 'real', [], []; ...
@@ -65,7 +65,9 @@ bands = {
     'gamma'
     };
 
-figure('Color','white');
+h_fig = figure('Color','white');
+h_fig.Position(3) = h_fig.Position(3) * 2/3;
+
 hold all
 
 for m = 1:length(measures)
@@ -107,12 +109,24 @@ for m = 1:length(measures)
 end
 
 set(gca,'XTick',unique(sessnum),'FontName',fontname,'FontSize',fontsize);
+
 if strcmp(param.legend,'on')
-    [~,icons,~,~] = legend(param.groupnames(1:length(groups)),'Location','SouthEast');
+    [~,icons,~,~] = legend(param.groupnames(1:length(groups)),'Location',param.legendlocation);
     for i = 1:4
         icons(i).FontSize = 22;
         icons(i+4).Children.MarkerSize = 12;
     end
 end
 
+xlabel(param.xlabel);
 ylabel(param.ylabel);
+
+if ~isempty(param.ylim)
+    ylim(param.ylim);
+end
+
+if ~isempty(param.patient)
+    print(gcf,sprintf('figures/trend_%s_%s_%s.tif',param.patient,measures{1},bands{bandidx}),'-dtiff','-r150');
+end
+
+close(gcf);

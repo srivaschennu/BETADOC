@@ -8,10 +8,12 @@ param = finputcheck(varargin, {
     'runpca', 'string', {'true','false'}, 'false'; ...
     });
 
-subjlist = eval(listname);
 
 loadpaths
 loadsubj
+
+subjlist = eval(listname);
+
 loadcovariates
 
 groupvar = eval(param.group);

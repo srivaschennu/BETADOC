@@ -30,19 +30,19 @@ trainlabels = groupvar;
 % testfeatures = features(cvp.test(1),:,:);
 % testlabels = groupvar(cvp.test(1),1);
 
-% %% start parallel pool
-% curpool = gcp('nocreate');
-% if isempty(curpool)
-% %     parpool(parallel.defaultClusterProfile,size(features,3));
-%     parpool(parallel.defaultClusterProfile,3);
-% elseif curpool.NumWorkers ~= size(features,3)
-%     delete(curpool);
-% %     parpool(parallel.defaultClusterProfile,size(features,3));
-%     parpool(parallel.defaultClusterProfile,3);
-% end
+%% start parallel pool
+curpool = gcp('nocreate');
+if isempty(curpool)
+%     parpool(parallel.defaultClusterProfile,size(features,3));
+    parpool(parallel.defaultClusterProfile,3);
+elseif curpool.NumWorkers ~= size(features,3)
+    delete(curpool);
+%     parpool(parallel.defaultClusterProfile,size(features,3));
+    parpool(parallel.defaultClusterProfile,3);
+end
 
 %% search through parameters for best cross-validated classifier
-for d = 1:size(features,3)
+parfor d = 1:size(features,3)
     rng('default');
     warning('off','stats:glmfit:IterationLimit');
     thisfeat = trainfeatures(:,:,d);
