@@ -99,7 +99,11 @@ for m = 1:length(measures)
         plotdata = testdata(subjnum == uniqsubj(s));
         %         plotdata = (plotdata - plotdata(1))*100/plotdata(1);
         %         testdata(subjnum == uniqsubj(s)) = plotdata;
-        legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
+        if m == 1
+            legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
+        else
+            legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],'LineStyle','--'));
+        end
     end
     
     for g = groups'

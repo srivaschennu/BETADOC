@@ -1,4 +1,4 @@
-function [scores,group,stats,pet] = plotmeasure(listname,conntype,measure,bandidx,varargin)
+function [scores,group,stats] = plotmeasure(listname,conntype,measure,bandidx,varargin)
 
 param = finputcheck(varargin, {
     'group', 'string', [], 'crsdiag'; ...
@@ -74,12 +74,9 @@ elseif strcmpi(measure,'median')
 elseif strcmpi(measure,'mean')
     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype),'allcoh');
     testdata = mean(mean(allcoh(:,bandidx,ismember({sortedlocs.labels},eval(param.changroup)),ismember({sortedlocs.labels},eval(param.changroup2))),4),3);
-elseif strcmpi(measure,'refdiag')
-    testdata = refdiag;
-elseif strcmpi(measure,'crs')
-    testdata = crs;
-elseif strcmpi(measure,'etiology')
-    testdata = etiology;
+elseif strcmpi(measure,'refdiag') || strcmpi(measure,'crs') || strcmpi(measure,'auditory') || strcmpi(measure,'visual') || strcmpi(measure,'motor') || ...
+        strcmpi(measure,'verbal') || strcmpi(measure,'communication') || strcmpi(measure,'arousal') || strcmpi(measure,'etiology')
+    testdata = eval(lower(measure));
 else
     trange = [0.9 0.1];
     load(sprintf('%s%s//graphdata_%s_%s.mat',filepath,conntype,listname,conntype),'graph','tvals');
@@ -168,36 +165,7 @@ for g = 1:size(grouppairs,1)
     thisgroupvar = groupvar(groupvar == grouppairs(g,1) | groupvar == grouppairs(g,2));
     [~,~,thisgroupvar] = unique(thisgroupvar);
     thisgroupvar = thisgroupvar-1;
-    thispetdiag = petdiag(groupvar == grouppairs(g,1) | groupvar == grouppairs(g,2));
     thistestdata = testdata(groupvar == grouppairs(g,1) | groupvar == grouppairs(g,2),:,:);
-    
-    pet(g).confmat = confusionmat(thisgroupvar(~isnan(thispetdiag)),thispetdiag(~isnan(thispetdiag)));
-    pet(g).confmat = pet(g).confmat*100 ./ repmat(sum(pet(g).confmat,2),1,2);
-    [~,pet(g).chi2,pet(g).chi2pval] = crosstab(thisgroupvar(~isnan(thispetdiag)),thispetdiag(~isnan(thispetdiag)));
-    pet(g).accu = round(sum(thisgroupvar(~isnan(thispetdiag))==thispetdiag(~isnan(thispetdiag)))*100/length(thisgroupvar(~isnan(thispetdiag))));
-    if strcmp(param.noplot,'off')
-        fprintf('\nPET: %s vs %s Chi2 = %.2f, Chi2 p = %.1e, accu = %d%%.\n',...
-            param.groupnames{grouppairs(g,1)+1},param.groupnames{grouppairs(g,2)+1},...
-            pet(g).chi2,pet(g).chi2pval,pet(g).accu);
-        
-        if strcmp(param.plotcm,'on')
-            % plot confusion matrix
-            plotconfusionmat(pet(g).confmat,{param.groupnames{grouppairs(g,1)+1},param.groupnames{grouppairs(g,2)+1}});
-            set(gca,'FontName',fontname,'FontSize',fontsize);
-            if ~isempty(param.xlabel)
-                xlabel(param.xlabel,'FontName',fontname,'FontSize',fontsize);
-            else
-                xlabel('PET diagnosis','FontName',fontname,'FontSize',fontsize);
-            end
-            if ~strcmp(param.ylabel,measure)
-                ylabel(param.ylabel,'FontName',fontname,'FontSize',fontsize);
-            else
-                ylabel('CRS-R diagnosis','FontName',fontname,'FontSize',fontsize);
-            end
-            export_fig(gcf,sprintf('figures/PET_%s_vs_%s_cm.tiff',param.groupnames{grouppairs(g,1)+1},param.groupnames{grouppairs(g,2)+1}),'-r300','-p0.01');
-            close(gcf);
-        end
-    end
     
     for d = 1:size(thistestdata,2)
         thistestdata2 = squeeze(thistestdata(:,d,:));

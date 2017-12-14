@@ -1,6 +1,6 @@
 
 patlist = {
-    %'N','Adm diag','CRS Diag','PET','tennis','TBI?','Age','male','days onset','Outcome' 'CRS-R score'
+    'N','refdiag','crsdiag','petdiag','tennis','tbi?','age','male?','daysonset','outcome' 'crs'
     '1'     	1		0		1		0		0		49		1		2884	3		7
     '2'         1		2		1		NaN		0		27		0		1570	4		15
     '3'         0		2		1		NaN		1		27		1		1542	NaN		10
@@ -226,11 +226,12 @@ camctrllist = {
     };
 
 allcamsubj = cat(1,campatlist,camctrllist);
-emcs = patlist(cell2mat(patlist(:,3)) == 3,:);
-lis = patlist(cell2mat(patlist(:,3)) == 4,:);
+covariates = patlist(1,:);
+emcs = patlist(cell2mat(patlist(2:end,strcmp('crsdiag',covariates))) == 3,:);
+lis = patlist(cell2mat(patlist(2:end,strcmp('crsdiag',covariates))) == 4,:);
 
 betadoc = {
-    %'N',                     'Adm diag','CRS Diag',       'TBI?',    'Age',        'male', 'days onset', 'CRS-R score', 'auditory',    'visual',  'motor', 'verbal', 'communication', 'arousal', 'Trajectory Grouping' 
+    'N',                     'refdiag',     'crsdiag',     'tbi?',     'age',     'male?',  'days onset',      'crs', 'auditory',     'visual',  'motor',   'verbal', 'communication', 'arousal',     'traj' 
     'p01_A_16_S1'                NaN             1           0           21          0           1110            9           1           3           2           1           0           2              2
     'p01_A_16_S2'                NaN             1           0           21          0           1189            10          2           3           2           1           0           2              2
     'p01_A_16_S3'                NaN             1           0           21          0           1287            9           1           3           2           1           0           2              2
@@ -360,8 +361,3 @@ betadoc = {
     'p32_G_17_S2'                1               2           1           29          1           319             16          4           4           2           2           1           3              2
     'p33_J_17_S1'                1               0           0           30          0           287             3           1           0           1           0           0           1              NaN
     };
-
-%add NaN columns for Tennis and PET, so that BETADOC table matches PATLIST
-%in structure
-betadoc = cat(2,betadoc(:,1:3),num2cell(ones(size(betadoc,1),2)),betadoc(:,4:7),num2cell(ones(size(betadoc,1),1)),betadoc(:,8:end));
-betactrl = cat(1,betadoc(:,1:size(ctrllist,2)),ctrllist);
