@@ -51,6 +51,15 @@ facecolorlist = [
     1 1 0.5
     ];
 
+markerlist = {
+    '^'
+    'v'
+    '<'
+    '>'
+    'square'
+    'diamond'
+    };
+
 groupnames = param.groupnames;
 
 weiorbin = 3;
@@ -101,14 +110,17 @@ for m = 1:length(measures)
         %         testdata(subjnum == uniqsubj(s)) = plotdata;
         if m == 1
             legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
-        else
-            legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],'LineStyle','--'));
+        elseif m > 1
+            legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],...
+                'LineStyle','none','Marker',markerlist{m-1},'MarkerFaceColor',[0.75 0.75 0.75],'MarkerSize',10));
         end
     end
     
-    for g = groups'
-        scatter(sessnum(groupvar == g),testdata(groupvar == g),150,...
-            'MarkerFaceColor',facecolorlist(g+1,:),'MarkerEdgeColor',colorlist(g+1,:));
+    if m == 1
+        for g = groups'
+            scatter(sessnum(groupvar == g),testdata(groupvar == g),150,...
+                'MarkerFaceColor',facecolorlist(g+1,:),'MarkerEdgeColor',colorlist(g+1,:));
+        end
     end
 end
 
