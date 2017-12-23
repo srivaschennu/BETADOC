@@ -23,6 +23,7 @@ tasklist = {
 
 %% -- INITIALISATION
 subjlist = eval(listname);
+subjlist = subjlist(2:end,:);
 
 if strcmp(runmode,'serial')
     for subjidx = 1:size(subjlist,1)

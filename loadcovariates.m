@@ -1,33 +1,33 @@
-covariates = subjlist(1,:);
+covariatenames = subjlist(1,:);
 subjlist = subjlist(2:end,:);
 
-refdiag = cell2mat(subjlist(:,strcmp('refdiag',covariates)));
+refdiag = cell2mat(subjlist(:,strcmp('refdiag',covariatenames)));
 refaware = double(refdiag > 0);
 refaware(isnan(refdiag)) = NaN;
-crsdiag = cell2mat(subjlist(:,strcmp('crsdiag',covariates)));
+crsdiag = cell2mat(subjlist(:,strcmp('crsdiag',covariatenames)));
 crsaware = double(crsdiag > 0);
-petdiag = cell2mat(subjlist(:,strcmp('petdiag',covariates)));
-tennis = cell2mat(subjlist(:,strcmp('tennis',covariates)));
-etiology = cell2mat(subjlist(:,strcmp('tbi?',covariates)));
-age = cell2mat(subjlist(:,strcmp('age',covariates)));
-daysonset = cell2mat(subjlist(:,strcmp('daysonset',covariates)));
-outcome = double(cell2mat(subjlist(:,strcmp('outcome',covariates))) > 2);
-outcome(isnan(cell2mat(subjlist(:,strcmp('outcome',covariates))))) = NaN;
+petdiag = cell2mat(subjlist(:,strcmp('petdiag',covariatenames)));
+tennis = cell2mat(subjlist(:,strcmp('tennis',covariatenames)));
+etiology = cell2mat(subjlist(:,strcmp('tbi?',covariatenames)));
+age = cell2mat(subjlist(:,strcmp('age',covariatenames)));
+daysonset = cell2mat(subjlist(:,strcmp('daysonset',covariatenames)));
+outcome = double(cell2mat(subjlist(:,strcmp('outcome',covariatenames))) > 2);
+outcome(isnan(cell2mat(subjlist(:,strcmp('outcome',covariatenames))))) = NaN;
 
-anoxicoutcome = double(cell2mat(subjlist(:,strcmp('outcome',covariates))) > 2);
-anoxicoutcome(isnan(cell2mat(subjlist(:,strcmp('outcome',covariates))))) = NaN;
+anoxicoutcome = double(cell2mat(subjlist(:,strcmp('outcome',covariatenames))) > 2);
+anoxicoutcome(isnan(cell2mat(subjlist(:,strcmp('outcome',covariatenames))))) = NaN;
 anoxicoutcome(etiology == 1) = NaN;
-tbioutcome = double(cell2mat(subjlist(:,strcmp('outcome',covariates))) > 2);
-tbioutcome(isnan(cell2mat(subjlist(:,strcmp('outcome',covariates))))) = NaN;
+tbioutcome = double(cell2mat(subjlist(:,strcmp('outcome',covariatenames))) > 2);
+tbioutcome(isnan(cell2mat(subjlist(:,strcmp('outcome',covariatenames))))) = NaN;
 tbioutcome(etiology == 0) = NaN;
 
-crs = cell2mat(subjlist(:,strcmp('crs',covariates)));
-auditory = cell2mat(subjlist(:,strcmp('auditory',covariates)));
-visual = cell2mat(subjlist(:,strcmp('visual',covariates)));
-motor = cell2mat(subjlist(:,strcmp('motor',covariates)));
-verbal = cell2mat(subjlist(:,strcmp('verbal',covariates)));
-communication = cell2mat(subjlist(:,strcmp('communication',covariates)));
-arousal = cell2mat(subjlist(:,strcmp('arousal',covariates)));
+crs = cell2mat(subjlist(:,strcmp('crs',covariatenames)));
+auditory = cell2mat(subjlist(:,strcmp('auditory',covariatenames)));
+visual = cell2mat(subjlist(:,strcmp('visual',covariatenames)));
+motor = cell2mat(subjlist(:,strcmp('motor',covariatenames)));
+verbal = cell2mat(subjlist(:,strcmp('verbal',covariatenames)));
+communication = cell2mat(subjlist(:,strcmp('communication',covariatenames)));
+arousal = cell2mat(subjlist(:,strcmp('arousal',covariatenames)));
 
 admvscrs = NaN(size(refdiag));
 admvscrs(refaware == 0) = 0;

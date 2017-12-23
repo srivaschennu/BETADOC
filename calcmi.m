@@ -3,23 +3,21 @@ function calcmi(listname,conntype,varargin)
 loadpaths
 loadsubj
 
+measure = 'participation coefficient';
+
 subjlist = eval(listname);
-crsdiag = cell2mat(subjlist(:,3));
+allsubjlist = eval('allsubj');
+loadcovariates
+crsdiag = cell2mat(allsubjlist(2:end,strcmp('crsdiag',covariatenames)));
 
 param = finputcheck(varargin, {
     'randratio', 'string', {'on','off'}, 'off'; ...
     });
 
 load(sprintf('%s/%s/graphdata_%s_%s.mat',filepath,conntype,listname,conntype),'graph','tvals');
-if strcmp(param.randratio,'on')
-    if exist(sprintf('%s/%s/graphdata_%s_rand_%s.mat',filepath,conntype,listname,conntype),'file')
-        randgraph = load(sprintf('%s/%s/graphdata_%s_rand_%s.mat',filepath,conntype,listname,conntype));
-    else
-        error('%s/%s/graphdata_%s_rand_%s.mat not found!');
-    end
-end
+ctrlgraph = load(sprintf('%s/%s/graphdata_%s_%s.mat',filepath,conntype,'allsubj',conntype),'graph','tvals');
 
-weiorbin = 3;
+weiorbin = 2;
 
 if any(strcmp('mutual information',graph(:,1)))
     midx = find(strcmp('mutual information',graph(:,1)));
@@ -28,12 +26,10 @@ else
     midx = size(graph,1);
 end
 
-
-
-modinfo = graph{strcmp('participation coefficient',graph(:,1)),weiorbin};
+modinfo = graph{strcmp(measure,graph(:,1)),weiorbin};
 mutinfo = zeros(size(modinfo,1),size(modinfo,2),size(modinfo,3));
 
-meanctrl = squeeze(mean(modinfo(crsdiag == 5,:,:,:),1));
+meanctrl = squeeze(mean(ctrlgraph.graph{strcmp(measure,graph(:,1)),weiorbin}(crsdiag == 5,:,:,:),1));
 
 for bandidx = 1:size(modinfo,2)
     for t = 1:size(modinfo,3)

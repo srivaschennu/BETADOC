@@ -9,6 +9,7 @@ param = finputcheck(varargin, {
     });
 
 subjlist = eval(listname);
+subjlist = subjlist(2:end,:);
 
 savename = sprintf('%s/%s/graphdata_%s_%s.mat',filepath,conntype,listname,conntype);
 
