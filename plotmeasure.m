@@ -57,7 +57,7 @@ facecolorlist = [
 
 groupnames = param.groupnames;
 
-weiorbin = 2;
+weiorbin = 3;
 plottvals = [];
 
 if strcmpi(measure,'power')

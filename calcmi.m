@@ -17,7 +17,7 @@ param = finputcheck(varargin, {
 load(sprintf('%s/%s/graphdata_%s_%s.mat',filepath,conntype,listname,conntype),'graph','tvals');
 ctrlgraph = load(sprintf('%s/%s/graphdata_%s_%s.mat',filepath,conntype,'allsubj',conntype),'graph','tvals');
 
-weiorbin = 2;
+weiorbin = 3;
 
 if any(strcmp('mutual information',graph(:,1)))
     midx = find(strcmp('mutual information',graph(:,1)));
