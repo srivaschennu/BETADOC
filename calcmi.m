@@ -27,17 +27,21 @@ else
 end
 
 modinfo = graph{strcmp(measure,graph(:,1)),weiorbin};
-mutinfo = zeros(size(modinfo,1),size(modinfo,2),size(modinfo,3));
 
-meanctrl = squeeze(mean(ctrlgraph.graph{strcmp(measure,graph(:,1)),weiorbin}(crsdiag == 5,:,:,:),1));
+allctrl = ctrlgraph.graph{strcmp(measure,graph(:,1)),weiorbin}(crsdiag == 5,:,:,:);
+% meanctrl = squeeze(mean(ctrlgraph.graph{strcmp(measure,graph(:,1)),weiorbin}(crsdiag == 5,:,:,:),1));
+
+mutinfo = zeros(size(modinfo,1),size(allctrl,1),size(modinfo,2),size(modinfo,3));
 
 for bandidx = 1:size(modinfo,2)
     for t = 1:size(modinfo,3)
         for s1 = 1:size(modinfo,1)
-            mutinfo(s1,bandidx,t) = ...
-                corr(squeeze(modinfo(s1,bandidx,t,:)),squeeze(meanctrl(bandidx,t,:)));
+            for s2 = 1:size(allctrl,1)
+                mutinfo(s1,s2,bandidx,t) = ...
+                    corr(squeeze(modinfo(s1,bandidx,t,:)),squeeze(allctrl(s2,bandidx,t,:)));
             %                     [~, mutinfo(s1,s2,bandidx,t)] = ...
             %                         partition_distance(zscore(squeeze(modinfo(s1,bandidx,t,:))),zscore(squeeze(modinfo(s2,bandidx,t,:))));
+            end
         end
     end
 end
