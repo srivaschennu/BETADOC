@@ -4,14 +4,9 @@ loadpaths
 
 savefile = [filepath 'ftdwpli/' basename 'ftdwpli.mat'];
 
-% if exist(savefile,'file')
-%     fprintf('%s exists. Skipping.\n',savefile);
-%     return
-% end
+EEG = pop_loadset('filename',[basename '.set'],'filepath','/Users/chennu/Data/Sedation-RestingState/');
 
-EEG = pop_loadset('filename',[basename '_SASFASTER.set'],'filepath',filepath);
-
-load([filepath basename '_SASFASTERspectra.mat'],'freqlist');
+load freqlist
 
 chanlocs = EEG.chanlocs;
 
@@ -20,7 +15,6 @@ cfg = [];
 cfg.output     = 'powandcsd';
 cfg.method     = 'mtmfft';
 cfg.foilim        = [0.5 45];
-% cfg.taper = 'hanning';
 cfg.taper = 'dpss';
 cfg.tapsmofrq = 0.3;
 cfg.keeptrials = 'yes';
