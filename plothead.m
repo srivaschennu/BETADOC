@@ -36,6 +36,6 @@ camtarget([-9.7975  -28.8277   41.8981]);
 campos([-1.7547    1.7161    1.4666]*1000);
 camzoom(1.25);
 set(gcf,'InvertHardCopy','off');
-print(gcf,sprintf('figures/plotgraph3d_%s_%s.tif',basename,bands{bandidx}),'-dtiff','-r150');
+print(gcf,sprintf('figures/plotgraph3d_%s_%s.tif',basename,bands{bandidx}),'-dtiff','-r300');
 % close(gcf);
 end

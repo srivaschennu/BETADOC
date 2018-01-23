@@ -142,7 +142,7 @@ if ~isempty(param.ylim)
 end
 
 if ~isempty(param.patient)
-    print(gcf,sprintf('figures/trend_%s_%s_%s.tif',param.patient,measures{1},bands{bandidx}),'-dtiff','-r150');
+    print(gcf,sprintf('figures/trend_%s_%s_%s.tif',param.patient,measures{1},bands{bandidx}),'-dtiff','-r300');
 end
 
 close(gcf);
