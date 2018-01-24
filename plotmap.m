@@ -13,6 +13,7 @@ loadpaths
 weiorbin = 3;
 
 load(sprintf('%s/%s_betadoc.mat',filepath,basename));
+load(sprintf('%s/%s_betadoc.mat',filepath,basename),'freqs');
 
 if ~isempty(param.pmask)
     pmaskidx = ismember({chanlocs.labels},cat(1,eval(param.pmask)));
@@ -28,6 +29,7 @@ if strcmpi(measure,'power')
     for c = 1:size(plotdata,2)
         plotdata(:,c) = plotdata(:,c)./sum(plotdata(:,c));
     end
+    plotdata = plotdata(bandidx,:);
 else
     trange = [0.9 0.1];
     trange = (tvals <= trange(1) & tvals >= trange(2));

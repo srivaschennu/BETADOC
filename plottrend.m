@@ -75,7 +75,7 @@ bands = {
     };
 
 h_fig = figure('Color','white');
-h_fig.Position(3) = h_fig.Position(3) * 2/3;
+% h_fig.Position(3) = h_fig.Position(3) * 2/3;
 
 hold all
 
@@ -85,21 +85,21 @@ for m = 1:length(measures)
     groups = unique(groupvar(~isnan(groupvar)));
     
     if ~isempty(param.traj)
-        subjlist = subjlist(trajectory == param.traj,:);
+        thissubjlist = subjlist(trajectory == param.traj,:);
         testdata = testdata(trajectory == param.traj,:);
         groupvar = groupvar(trajectory == param.traj);
     end
     
     if ~isempty(param.patient)
         patidx = strncmp(param.patient,subjlist(:,1),length(param.patient));
-        subjlist = subjlist(patidx,:);
+        thissubjlist = subjlist(patidx,:);
         testdata = testdata(patidx,:);
         groupvar = groupvar(patidx,:);
     end
     
-    subjnum = cellfun(@(x) str2num(x(2:3)), subjlist(:,1));
+    subjnum = cellfun(@(x) str2num(x(2:3)), thissubjlist(:,1));
     uniqsubj = unique(subjnum);
-    sessnum = cellfun(@(x) str2num(x(end)), subjlist(:,1));
+    sessnum = cellfun(@(x) str2num(x(end)), thissubjlist(:,1));
     
     testdata = mean(testdata,2);
     
@@ -111,15 +111,15 @@ for m = 1:length(measures)
         if m == 1
             legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
         elseif m > 1
-            legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],...
-                'LineStyle','none','Marker',markerlist{m-1},'MarkerFaceColor',[0.75 0.75 0.75],'MarkerSize',10));
+            plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],...
+                'LineStyle','none','Marker',markerlist{m-1},'MarkerFaceColor',[0.75 0.75 0.75],'MarkerSize',12,'DisplayName',measures{m});
         end
     end
     
     if m == 1
         for g = groups'
-            scatter(sessnum(groupvar == g),testdata(groupvar == g),150,...
-                'MarkerFaceColor',facecolorlist(g+1,:),'MarkerEdgeColor',colorlist(g+1,:));
+            scatter(sessnum(groupvar == g),testdata(groupvar == g),175,...
+                'MarkerFaceColor',facecolorlist(g+1,:),'MarkerEdgeColor',colorlist(g+1,:),'DisplayName',param.groupnames{g+1});
         end
     end
 end
@@ -127,10 +127,13 @@ end
 set(gca,'XTick',unique(sessnum),'FontName',fontname,'FontSize',fontsize);
 
 if strcmp(param.legend,'on')
-    [~,icons,~,~] = legend(param.groupnames(1:length(groups)),'Location',param.legendlocation);
-    for i = 1:4
-        icons(i).FontSize = 22;
-        icons(i+4).Children.MarkerSize = 12;
+    [~,icons,~,~] = legend('show','Location',param.legendlocation);
+    for i = 1:length(icons)
+        if isa(icons(i),'matlab.graphics.primitive.Group')
+            icons(i).Children.MarkerSize = 12;
+        elseif isa(icons(i),'matlab.graphics.primitive.Text')
+            icons(i).FontSize = 22;
+        end
     end
 end
 
