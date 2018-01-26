@@ -21,13 +21,17 @@ tbioutcome = double(cell2mat(subjlist(:,strcmp('outcome',covariatenames))) > 2);
 tbioutcome(isnan(cell2mat(subjlist(:,strcmp('outcome',covariatenames))))) = NaN;
 tbioutcome(etiology == 0) = NaN;
 
-crs = cell2mat(subjlist(:,strcmp('crs',covariatenames)));
+% SOME ERRORS IN THE CRS-R SCORS
+% crs = cell2mat(subjlist(:,strcmp('crs',covariatenames)));
+
 auditory = cell2mat(subjlist(:,strcmp('auditory',covariatenames)));
 visual = cell2mat(subjlist(:,strcmp('visual',covariatenames)));
 motor = cell2mat(subjlist(:,strcmp('motor',covariatenames)));
 verbal = cell2mat(subjlist(:,strcmp('verbal',covariatenames)));
 communication = cell2mat(subjlist(:,strcmp('communication',covariatenames)));
 arousal = cell2mat(subjlist(:,strcmp('arousal',covariatenames)));
+
+crs = auditory + visual + motor + verbal + communication + arousal;
 
 admvscrs = NaN(size(refdiag));
 admvscrs(refaware == 0) = 0;

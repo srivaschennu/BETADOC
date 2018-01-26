@@ -63,7 +63,7 @@ plottvals = [];
 if strcmpi(measure,'power')
     %     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype));
     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype),'bandpower');
-    testdata = 1 ./ mean(bandpower(:,bandidx,ismember({sortedlocs.labels},eval(param.changroup))),3);
+    testdata = mean(bandpower(:,bandidx,ismember({sortedlocs.labels},eval(param.changroup))),3) * 100;
 elseif strcmpi(measure,'specent')
     %     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype));
     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype),'specent');

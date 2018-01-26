@@ -40,6 +40,10 @@ colorlist = [
     0   0.5 0.5
     0.5 0   0.5
     0.5 0.5 0
+    0.5 0 0
+    0  0.5 0
+    0  0 0.5
+    0.5 0.5 0.5
     ];
 
 facecolorlist = [
@@ -49,6 +53,10 @@ facecolorlist = [
     0.75 1 1
     1 0.75 1
     1 1 0.5
+    1 0 0
+    0 1 0
+    0 0 1
+    0.25 0.25 0.25
     ];
 
 markerlist = {
@@ -112,25 +120,26 @@ for m = 1:length(measures)
             legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
         elseif m > 1
             plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],...
-                'LineStyle','none','Marker',markerlist{m-1},'MarkerFaceColor',[0.75 0.75 0.75],'MarkerSize',12,'DisplayName',measures{m});
+                'LineStyle','none','Marker',markerlist{m-1},'MarkerSize',15,'DisplayName',measures{m},...
+                'MarkerFaceColor',facecolorlist(end-m+2,:),'MarkerEdgeColor',colorlist(end-m+2,:));
         end
     end
     
     if m == 1
         for g = groups'
-            scatter(sessnum(groupvar == g),testdata(groupvar == g),175,...
+            scatter(sessnum(groupvar == g),testdata(groupvar == g),250,...
                 'MarkerFaceColor',facecolorlist(g+1,:),'MarkerEdgeColor',colorlist(g+1,:),'DisplayName',param.groupnames{g+1});
         end
     end
 end
 
-set(gca,'XTick',unique(sessnum),'FontName',fontname,'FontSize',fontsize);
+set(gca,'XLim',[0.5 sessnum(end)+0.5],'XTick',unique(sessnum),'FontName',fontname,'FontSize',fontsize);
 
 if strcmp(param.legend,'on')
     [~,icons,~,~] = legend('show','Location',param.legendlocation);
     for i = 1:length(icons)
         if isa(icons(i),'matlab.graphics.primitive.Group')
-            icons(i).Children.MarkerSize = 12;
+            icons(i).Children.MarkerSize = 15;
         elseif isa(icons(i),'matlab.graphics.primitive.Text')
             icons(i).FontSize = 22;
         end
