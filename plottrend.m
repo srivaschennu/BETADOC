@@ -118,6 +118,7 @@ for m = 1:length(measures)
         %         testdata(subjnum == uniqsubj(s)) = plotdata;
         if m == 1
             legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
+            scores = plotdata;
         elseif m > 1
             plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],...
                 'LineStyle','none','Marker',markerlist{m-1},'MarkerSize',15,'DisplayName',measures{m},...
