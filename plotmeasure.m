@@ -1,4 +1,4 @@
-function [scores,group,stats] = plotmeasure(listname,conntype,measure,bandidx,varargin)
+function [scores,group,stats,randscores] = plotmeasure(listname,conntype,measure,bandidx,varargin)
 
 param = finputcheck(varargin, {
     'group', 'string', [], 'crsdiag'; ...
@@ -59,11 +59,16 @@ groupnames = param.groupnames;
 
 weiorbin = 3;
 plottvals = [];
+randscores = [];
 
 if strcmpi(measure,'power')
     %     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype));
-    load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype),'bandpower');
+    load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype));
     testdata = mean(bandpower(:,bandidx,ismember({sortedlocs.labels},eval(param.changroup))),3) * 100;
+    if exist('randband','var')
+        randband = squeeze(mean(randband(:,:,ismember({sortedlocs.labels},eval(param.changroup)),:),3));
+        randscores = randband(:,bandidx,:) * 100;
+    end
 elseif strcmpi(measure,'specent')
     %     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype));
     load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype),'specent');
@@ -79,22 +84,9 @@ elseif strcmpi(measure,'refdiag') || strcmpi(measure,'crs') || strcmpi(measure,'
     testdata = eval(lower(measure));
 else
     trange = [0.9 0.1];
-    load(sprintf('%s%s//graphdata_%s_%s.mat',filepath,conntype,listname,conntype),'graph','tvals');
+    load(sprintf('%s%s//graphdata_%s_%s.mat',filepath,conntype,listname,conntype));
     trange = (tvals <= trange(1) & tvals >= trange(2));
     plottvals = tvals(trange);
-    
-    if strcmpi(measure,'small-worldness')
-        randgraph = load(sprintf('%s/%s/graphdata_%s_rand_%s.mat',filepath,conntype,listname,conntype));
-        graph{end+1,1} = 'small-worldness';
-        graph{end,2} = ( mean(graph{1,2},4) ./ mean(randgraph.graph{1,2},4) ) ./ ( graph{2,2} ./ randgraph.graph{2,2} ) ;
-        graph{end,3} = ( mean(graph{1,3},4) ./ mean(randgraph.graph{1,3},4) ) ./ ( graph{2,3} ./ randgraph.graph{2,3} ) ;
-    end
-    
-    %     if ~strcmpi(measure,'small-worldness')
-    %         m = find(strcmpi(measure,graph(:,1)));
-    %         graph{m,2} = graph{m,2} ./ randgraph.graph{m,2};
-    %         graph{m,3} = graph{m,3} ./ randgraph.graph{m,3};
-    %     end
     
     m = find(strcmpi(measure,graph(:,1)));
     if strcmpi(measure,'modules')
@@ -104,16 +96,10 @@ else
     elseif strcmpi(measure,'mutual information')
         testdata = squeeze(mean(graph{m,weiorbin}(:,:,bandidx,trange),2));
     elseif strcmpi(measure,'participation coefficient') || strcmpi(measure,'degree')
-%         testdata = squeeze(zscore(graph{m,weiorbin}(:,bandidx,trange,:),0,4));
-%         testdata = mean(testdata(:,:,ismember({sortedlocs.labels},eval(param.changroup))),3);
-        
         testdata = squeeze(std(graph{m,weiorbin}(:,bandidx,trange,ismember({sortedlocs.labels},eval(param.changroup))),[],4));
-
-        %         testdata = squeeze(graph{m,weiorbin}(:,bandidx,trange,:));
-        %         testdata = testdata - repmat(quantile(testdata,0.75,3),1,1,size(testdata,3));
-        %         testdata(testdata < 0) = NaN;
-        %         testdata = nanmean(testdata,3);
-%         testdata = squeeze(graph{m,weiorbin}(:,bandidx,trange,:));
+        if exist('randgraph','var')
+            randscores = squeeze(std(randgraph{m,weiorbin}(:,bandidx,trange,ismember({sortedlocs.labels},eval(param.changroup)),:),[],4));
+        end
     elseif strcmpi(measure,'characteristic path length')
         testdata = round(squeeze(mean(graph{m,weiorbin}(:,bandidx,trange,:),4)));
     else

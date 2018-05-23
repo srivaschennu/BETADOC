@@ -2,11 +2,10 @@ function ftcoherence(basename)
 
 loadpaths
 
-savefile = [filepath 'ftdwpli/' basename 'ftdwpli.mat'];
+filename = [filepath  basename '_betadoc.mat'];
+load(filename,'freqlist');
 
-EEG = pop_loadset('filename',[basename '.set'],'filepath','/Users/chennu/Data/Sedation-RestingState/');
-
-load freqlist
+EEG = pop_loadset('filename',[basename '.set'],'filepath',filepath);
 
 chanlocs = EEG.chanlocs;
 
@@ -18,15 +17,16 @@ cfg.foilim        = [0.5 45];
 cfg.taper = 'dpss';
 cfg.tapsmofrq = 0.3;
 cfg.keeptrials = 'yes';
-numrand = 0;
+numrand = 25;
 
+fprintf('Estimating spectrum and cross-spectrum.\n');
 EEG = ft_freqanalysis(cfg,EEG);
-abscrsspctrm = abs(EEG.crsspctrm);
+% abscrsspctrm = abs(EEG.crsspctrm);
 matrix = zeros(size(freqlist,1),length(chanlocs),length(chanlocs));
 bootmat = zeros(size(freqlist,1),length(chanlocs),length(chanlocs),numrand);
 coh = zeros(length(chanlocs),length(chanlocs));
 
-fprintf('Running %d randomisations',numrand);
+fprintf('Running %d randomisations...',numrand);
 for r = 0:numrand
     if r > 0
         if mod(r,5) == 0
@@ -34,11 +34,15 @@ for r = 0:numrand
         else
             fprintf('.');
         end
-        randangles = (2*rand(size(EEG.crsspctrm))-1) .* pi;
-        EEG.crsspctrm = complex(abscrsspctrm.*cos(randangles),abscrsspctrm.*sin(randangles));
+%         randangles = (2*rand(size(EEG.crsspctrm))-1) .* pi;
+%         EEG.crsspctrm = complex(abscrsspctrm.*cos(randangles),abscrsspctrm.*sin(randangles));
+        keeptrials = randperm(size(EEG.crsspctrm,1));
+        keeptrials = keeptrials(1:round(0.8 * size(EEG.crsspctrm,1)));
+    else
+        keeptrials = 1:size(EEG.crsspctrm,1);
     end
     
-    wpli = ft_connectivity_wpli(EEG.crsspctrm,'debias',true,'dojack',false);
+    wpli = ft_connectivity_wpli(EEG.crsspctrm(keeptrials,:,:),'debias',true,'dojack',false);
     
     for f = 1:size(freqlist,1)
         [~, bstart] = min(abs(EEG.freq-freqlist(f,1)));
@@ -57,5 +61,5 @@ for r = 0:numrand
     end
 end
 fprintf('\n');
-save(savefile,'matrix','bootmat','chanlocs');
+save(filename,'matrix','bootmat','chanlocs','-append');
 fprintf('\nDone.\n');

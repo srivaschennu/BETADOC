@@ -1,11 +1,11 @@
-function calcgraph(basename,conntype,varargin)
+function calcgraph(basename,varargin)
 
 loadpaths
 
 param = finputcheck(varargin, {
     'randomise', 'string', {'on','off'}, 'off'; ...
     'latticise', 'string', {'on','off'}, 'off'; ...
-    'numrand', 'integer', [], 50; ...
+    'numrand', 'integer', [], 25; ...
     'rewire', 'integer', [], 50; ...
     'heuristic', 'integer', [], 50; ...
     });
@@ -15,8 +15,10 @@ chandist = chandist / max(chandist(:));
 
 tvals = 1:-0.025:0.1;
 
+filename = sprintf('%s%s_betadoc.mat',filepath,basename);
+load(filename,'matrix','bootmat','chanlocs');
+
 if strcmp(param.randomise,'on')
-    savename = sprintf('%s/%s/%s%srandgraph.mat',filepath,conntype,basename,conntype);
     numruns = param.numrand;
 elseif strcmp(param.latticise,'on')
     distdiag = repmat(1:length(sortedlocs),[length(sortedlocs) 1]);
@@ -24,14 +26,10 @@ elseif strcmp(param.latticise,'on')
         distdiag(d,:) = abs(distdiag(d,:) - d);
     end
     distdiag = distdiag ./ max(distdiag(:));
-    savename = sprintf('%s/%s/%s%slattgraph.mat',filepath,conntype,basename,conntype);
     numruns = param.numrand;
 else
-    savename = sprintf('%s/%s/%s%sgraph.mat',filepath,conntype,basename,conntype);
     numruns = 1;
 end
-
-load(savename);
 
 graphdata{1,1} = 'clustering';
 graphdata{2,1} = 'characteristic path length';
@@ -46,9 +44,6 @@ graphdata{10,1} = 'mutual information';
 
 fprintf('Processing %s',basename);
 
-
-load(['/Users/chennu/Data/Liege-RestingState/' conntype filesep basename conntype '.mat']);
-load /Users/chennu/Work/Liege-RestingState/sortedlocs
 [sortedchan,sortidx] = sort({chanlocs.labels});
 if ~strcmp(chanlist,cell2mat(sortedchan))
     error('Channel names do not match!');
@@ -56,11 +51,6 @@ end
 matrix = matrix(:,sortidx,sortidx);
 bootmat = bootmat(:,sortidx,sortidx,:);
 chanlocs = chanlocs(sortidx);
-
-load([chanlocpath '173to91.mat']);
-matrix = matrix(:,keepidx,keepidx);
-bootmat = bootmat(:,keepidx,keepidx,:);
-chanlocs = chanlocs(keepidx);
 
 for f = 1:size(matrix,1)
     fprintf('\nBand %d iteration',f);
@@ -175,4 +165,9 @@ for f = 1:size(matrix,1)
 end
 fprintf('\n');
 
-save(savename, 'graphdata', 'tvals');
+if strcmp(param.randomise,'on')
+    graphdata_rand = graphdata;
+    save(filename, 'graphdata_rand', 'tvals', '-append');
+else
+    save(filename, 'graphdata', 'tvals', '-append');
+end

@@ -17,6 +17,7 @@ param = finputcheck(varargin, {
     'noplot', 'string', {'on','off'}, 'off'; ...
     'plotcm', 'string', {'on','off'}, 'off'; ...
     'patient', 'string', {}, ''; ...
+    'relative', 'string', {'diff','ratio','off'}, 'off'; ...
     });
 
 fontname = 'Helvetica';
@@ -89,7 +90,8 @@ hold all
 
 for m = 1:length(measures)
     measure = measures{m};
-    [testdata,groupvar] = plotmeasure(listname,conntype,measure,bandidx,'noplot','on','group',param.group,'groupnames',param.groupnames);
+    [testdata,groupvar,~,randscores] = plotmeasure(listname,conntype,measure,bandidx,...
+        'noplot','on','group',param.group,'groupnames',param.groupnames);
     groups = unique(groupvar(~isnan(groupvar)));
     
     if ~isempty(param.traj)
@@ -103,6 +105,11 @@ for m = 1:length(measures)
         thissubjlist = subjlist(patidx,:);
         testdata = testdata(patidx,:);
         groupvar = groupvar(patidx,:);
+        if ~isempty(randscores)
+            randscores = randscores(patidx,:,:);
+            ts = tinv([0.025  0.975],size(randscores,3));      % T-Score
+            randscores = ts(2) * (std(randscores,[],3)/sqrt(size(randscores,3)));
+        end
     end
     
     subjnum = cellfun(@(x) str2num(x(2:3)), thissubjlist(:,1));
@@ -110,6 +117,18 @@ for m = 1:length(measures)
     sessnum = cellfun(@(x) str2num(x(end)), thissubjlist(:,1));
     
     testdata = mean(testdata,2);
+    if ~isempty(randscores)
+        randscores = mean(randscores,2);
+    end
+
+    if strcmp(param.relative,'diff')
+        testdata = (testdata - testdata(1));
+    elseif strcmp(param.relative,'ratio')
+        if ~isempty(randscores)
+            randscores = (randscores * 100)./testdata;
+        end
+        testdata = (testdata - testdata(1)) * 100 /testdata(1);
+    end
     
     alldata = {};
     for s = 1:length(uniqsubj)
@@ -117,7 +136,11 @@ for m = 1:length(measures)
         %         plotdata = (plotdata - plotdata(1))*100/plotdata(1);
         %         testdata(subjnum == uniqsubj(s)) = plotdata;
         if m == 1
-            legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
+            if ~isempty(randscores)
+                legendoff(errorbar(sessnum(subjnum == uniqsubj(s)),plotdata,randscores,'LineWidth',1,'Color','black'));
+            else
+                legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
+            end
             scores = plotdata;
         elseif m > 1
             plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color',[0.5 0.5 0.5],...

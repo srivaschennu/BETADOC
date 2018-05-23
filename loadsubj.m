@@ -326,7 +326,7 @@ betadoc = {
     'p20_J_16_S2'                0               1           1           54          1           13001           10          1           3           2           2           0           2              1
     'p21_J_16_S1'                1               0           1           24          0           585             4           0           0           1           1           0           2              2
     'p21_J_16_S2'                1               0           1           24          0           683             6           1           0           2           1           0           2              2
-    'p21_J_16_S3'                1               1           1           25          0           767             9           1           3           2           1           0           2              2
+    'p21_J_16_S3'                1               0           1           25          0           767             7           1           1           2           1           0           2              2
     'p22_G_16_S1'                1               2           0           64          1           465             11          3           3           2           1           0           2              NaN
     'p23_G_16_S1'	             NaN             1           1           43          1           661             8           1           3           0           2           0           2              1
     'p23_G_16_S2'                NaN             1           1           43          1           751             6           1           3           0           1           0           1              1
@@ -360,3 +360,11 @@ betadoc = {
     'p32_G_17_S2'                1               2           1           29          1           319             16          4           4           2           2           1           3              2
     'p33_J_17_S1'                1               0           0           30          0           287             3           1           0           1           0           0           1              NaN
     };
+
+frontiers_patients = { 'p03' 'p10' 'p18' 'p21' 'p28' };
+frontiers_idx = false(size(betadoc,1),1);
+frontiers_idx(1) = true;
+for c = 1:length(frontiers_patients)
+    frontiers_idx = frontiers_idx | strncmp(frontiers_patients{c},betadoc(:,1),length(frontiers_patients{c}));
+end
+frontiers = betadoc(frontiers_idx,:);
