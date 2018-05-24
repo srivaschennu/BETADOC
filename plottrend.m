@@ -17,7 +17,7 @@ param = finputcheck(varargin, {
     'noplot', 'string', {'on','off'}, 'off'; ...
     'plotcm', 'string', {'on','off'}, 'off'; ...
     'patient', 'string', {}, ''; ...
-    'relative', 'string', {'diff','ratio','off'}, 'off'; ...
+    'relative', 'string', {'diff','ratio','percent','off'}, 'off'; ...
     });
 
 fontname = 'Helvetica';
@@ -107,8 +107,10 @@ for m = 1:length(measures)
         groupvar = groupvar(patidx,:);
         if ~isempty(randscores)
             randscores = randscores(patidx,:,:);
-            ts = tinv([0.025  0.975],size(randscores,3));      % T-Score
-            randscores = ts(2) * (std(randscores,[],3)/sqrt(size(randscores,3)));
+            randscores = cat(3,min(randscores,[],3)-testdata,max(randscores,[],3)-testdata);
+%             ts = tinv([0.025  0.975],size(randscores,3));
+%             sem = std(randscores,[],3)/sqrt(size(randscores,3));
+%             randscores = cat(3,ts(1)*sem,ts(2)*sem);
         end
     end
     
@@ -118,16 +120,18 @@ for m = 1:length(measures)
     
     testdata = mean(testdata,2);
     if ~isempty(randscores)
-        randscores = mean(randscores,2);
+        randscores = squeeze(mean(randscores,2));
     end
 
     if strcmp(param.relative,'diff')
         testdata = (testdata - testdata(1));
     elseif strcmp(param.relative,'ratio')
         if ~isempty(randscores)
-            randscores = (randscores * 100)./testdata;
-        end
-        testdata = (testdata - testdata(1)) * 100 /testdata(1);
+            randscores = randscores * 100;
+        end        
+        testdata = (testdata - testdata(1)) * 100 / testdata(1);
+    elseif strcmp(param.relative,'percent')
+        testdata = (testdata - testdata(1)) * 100 / testdata(1);
     end
     
     alldata = {};
@@ -137,7 +141,8 @@ for m = 1:length(measures)
         %         testdata(subjnum == uniqsubj(s)) = plotdata;
         if m == 1
             if ~isempty(randscores)
-                legendoff(errorbar(sessnum(subjnum == uniqsubj(s)),plotdata,randscores,'LineWidth',1,'Color','black'));
+                legendoff(errorbar(sessnum(subjnum == uniqsubj(s)),plotdata,randscores(:,1),randscores(:,2),...
+                    'LineWidth',1,'Color','black','CapSize',20));
             else
                 legendoff(plot(sessnum(subjnum == uniqsubj(s)),plotdata,'LineWidth',1,'Color','black'));
             end

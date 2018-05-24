@@ -24,7 +24,7 @@ end
 
 specinfo = load([filepath basename '_betadoc.mat']);
 figure('Name',basename,'Color','white'); hold all
-plot(specinfo.freqs,10*log10(specinfo.spectra'),'LineWidth',2);
+plot(specinfo.freqs,10*log10(squeeze(mean(specinfo.spectra,1))'),'LineWidth',2);
 set(gca,'XLim',xlim,'YLim',ylim,'FontSize',fontsize,'FontName',fontname);
 xlabel('Frequency (Hz)','FontSize',fontsize,'FontName',fontname);
 ylabel('Power (dB)','FontSize',fontsize,'FontName',fontname);

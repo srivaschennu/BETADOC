@@ -24,7 +24,7 @@ if strcmpi(measure,'power')
         %collate spectral info
         [~, bstart] = min(abs(freqs-freqlist(f,1)));
         [~, bstop] = min(abs(freqs-freqlist(f,2)));
-        plotdata(f,:) = mean(spectra(:,bstart:bstop),2);
+        plotdata(f,:) = mean(squeeze(mean(spectra(:,:,bstart:bstop),1)),2);
     end
     for c = 1:size(plotdata,2)
         plotdata(:,c) = plotdata(:,c)./sum(plotdata(:,c));
