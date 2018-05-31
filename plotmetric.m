@@ -84,6 +84,8 @@ bands = {
     };
 
 trange = [0.9 0.1];
+precision = 3;
+tvals = floor(tvals * 10^precision)/10^precision;
 trange = (tvals <= trange(1) & tvals >= trange(2));
 
 m = find(strcmpi(measure,graph(:,1)));
