@@ -361,7 +361,7 @@ betadoc = {
     'p33_J_17_S1'                1               0           0           30          0           287             3           1           0           1           0           0           1              NaN
     };
 
-frontiers_patients = { 'p03' 'p10' 'p18' 'p21' 'p28' };
+frontiers_patients = { 'p03' 'p10' 'p18' 'p21'};
 frontiers_idx = false(size(betadoc,1),1);
 frontiers_idx(1) = true;
 for c = 1:length(frontiers_patients)
