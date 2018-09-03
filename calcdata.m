@@ -5,6 +5,7 @@ loadsubj
 
 subjlist = eval(listname);
 loadcovariates
+grp = crsdiag;
 
 load sortedlocs.mat
 
@@ -68,6 +69,5 @@ for s = 1:size(subjlist,1)
             randband(s,:,c,n) = randband(s,:,c,n)./sum(randband(s,:,c,n));
         end
     end
-    grp(s,1) = subjlist{s,3};
 end
 save(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype), 'grp', 'spectra', 'freqbins', 'bandpower', 'randband', 'specent', 'bandpeak', 'allcoh', 'subjlist');

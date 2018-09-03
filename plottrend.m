@@ -92,6 +92,10 @@ for m = 1:length(measures)
     measure = measures{m};
     [testdata,groupvar,~,randscores] = plotmeasure(listname,conntype,measure,bandidx,...
         'noplot','on','group',param.group,'groupnames',param.groupnames);
+    
+    % merge MCS- and MCS+
+    groupvar(groupvar == 2) = 1;
+
     groups = unique(groupvar(~isnan(groupvar)));
     
     if ~isempty(param.traj)

@@ -68,6 +68,9 @@ elseif strcmp(param.randratio,'on')
     graph{m,2} = graph{m,2} ./ mean(randgraph.graph{m,2},ndims(randgraph.graph{m,2}));
 end
 
+% merge MCS- and MCS+
+grp(grp == 2) = 1;
+
 groups = [0 1 5];
 groupnames = {
     'VS'

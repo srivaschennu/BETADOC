@@ -17,10 +17,11 @@ EEG = convertoft(EEG);
 cfg = [];
 cfg.output     = 'pow';
 cfg.method     = 'mtmfft';
-cfg.foilim        = [0.01 40];
+cfg.foilim        = [0.5 45];
 cfg.taper = 'dpss';
 cfg.tapsmofrq = 0.3;
 cfg.keeptrials = 'yes';
+cfg.pad='nextpow2';
 
 EEG = ft_freqanalysis(cfg,EEG);
 spectra = EEG.powspctrm;
