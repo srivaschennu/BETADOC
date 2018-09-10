@@ -124,7 +124,7 @@ plotgroups = [grp(selpatidx); max(grp(selpatidx))+1];
 [plotgroups,~,uniqgroups] = unique(plotgroups);
 boxh = notBoxPlot(plotvals,uniqgroups,0.5,'patch',ones(length(plotvals),1));
 for h = 1:length(boxh)
-    set(boxh(h).data,'Color',colorlist(h,:),'MarkerFaceColor',facecolorlist(h,:))
+    set(boxh(h).data,'Color',colorlist(h,:),'MarkerSize',10,'MarkerFaceColor',facecolorlist(h,:))
 end
 set(gca,'XLim',[0.5 length(plotgroups)+0.5],'XTick',1:length(plotgroups),...
     'XTickLabel',groupnames,'FontName',fontname,'FontSize',fontsize);
