@@ -54,7 +54,7 @@ end
 erange = [0 0.5];
 vrange = [0 0.4];
 
-plotgroups = 1:4;
+plotgroups = 1:length(groups);
 for g = plotgroups
     while true
         minfo(g,:) = plotgraph3d(squeeze(groupcoh(g,:,:)),sortedlocs,'plotqt',plotqt,...

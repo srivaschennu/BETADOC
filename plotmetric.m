@@ -6,6 +6,8 @@ conntype = 'ftdwpli';
 loadpaths
 
 param = finputcheck(varargin, {
+    'group', 'string', [], 'crsdiag'; ...
+    'groupnames', 'cell', {}, {'UWS','MCS-','MCS+','EMCS','LIS','CTRL'}; ...
     'ylim', 'real', [], []; ...
     'legend', 'string', {'on','off'}, 'on'; ...
     'plotinfo', 'string', {'on','off'}, 'on'; ...
@@ -14,6 +16,14 @@ param = finputcheck(varargin, {
     'randratio', 'string', {'on','off'}, 'off'; ...
     'legendposition', 'string', {}, 'NorthEast'; ...
     });
+
+loadsubj
+subjlist = eval(listname);
+loadcovariates
+
+groupvar = eval(param.group);
+groups = unique(groupvar(~isnan(groupvar)));
+groupnames = param.groupnames;
 
 fontname = 'Helvetica';
 fontsize = 28;
@@ -37,6 +47,17 @@ facecolorlist = [
     ];
 
 load(sprintf('%s/%s_betadoc.mat',filepath,basename));
+load(sprintf('%s/%s_betadoc.mat',filepath,basename),'freqs');
+bpower = zeros(size(freqlist,1),length(chanlocs));
+for f = 1:size(freqlist,1)
+    [~, bstart] = min(abs(freqs-freqlist(f,1)));
+    [~, bstop] = min(abs(freqs-freqlist(f,2)));
+    [~,peakindex] = max(mean(spectra(:,bstart:bstop),1),[],2);
+    bpower(f,:) = spectra(:,bstart+peakindex-1);
+end
+for c = 1:size(bpower,2)
+    bpower(:,c) = bpower(:,c)./sum(bpower(:,c));
+end
 
 load(sprintf('%s/%s/graphdata_%s_%s.mat',filepath,conntype,listname,conntype));
 load(sprintf('%s/%s/alldata_%s_%s.mat',filepath,conntype,listname,conntype));
@@ -68,15 +89,12 @@ elseif strcmp(param.randratio,'on')
     graph{m,2} = graph{m,2} ./ mean(randgraph.graph{m,2},ndims(randgraph.graph{m,2}));
 end
 
-% merge MCS- and MCS+
-grp(grp == 2) = 1;
-
-groups = [0 1 5];
-groupnames = {
-    'VS'
-    'MCS'
-    'CTRL'
-    };
+if strcmp(param.group, 'crsdiag')
+    % merge MCS- and MCS+
+    groupvar(groupvar == 2) = 1;
+    groups = [0 1 5];
+    groupnames = {'VS', 'MCS', 'CTRL'};
+end
 
 bands = {
     'Delta'
@@ -96,31 +114,34 @@ m = find(strcmpi(measure,graph(:,1)));
 barvals = zeros(3,length(groups));
 errvals = zeros(3,length(groups));
 
-selpatidx = ismember(grp,groups);
+selpatidx = ismember(groupvar,groups);
 
 if strcmp(measure,'modules')
     groupvals = squeeze(mean(max(graph{m,weiorbin}(selpatidx,bandidx,trange,:),[],4),3));
     patvals = squeeze(mean(max(graphdata{m,weiorbin}(bandidx,:,:),[],3),2));
 elseif strcmp(measure,'mutual information')
-    groupvals = squeeze(mean(mean(graph{m,weiorbin}(selpatidx,grp == groups(g),bandidx,trange),4),2));
-    patvals = squeeze(mean(mean(graphdata{m,weiorbin}(grp == groups(g),bandidx,trange),4),2));
+    groupvals = squeeze(mean(mean(graph{m,weiorbin}(selpatidx,groupvar == groups(g),bandidx,trange),4),2));
+    patvals = squeeze(mean(mean(graphdata{m,weiorbin}(groupvar == groups(g),bandidx,trange),4),2));
 elseif strcmp(measure,'participation coefficient')
     groupvals = squeeze(mean(std(graph{m,weiorbin}(selpatidx,bandidx,trange,:),[],4),3));
     patvals = squeeze(mean(std(graphdata{m,weiorbin}(bandidx,trange,:),[],3),2));
 elseif strcmp(measure,'median')
     groupvals = nanmedian(allcoh(selpatidx,bandidx,:),3);
     patvals = nanmedian(matrix(bandidx,:),2);
+elseif strcmpi(measure,'power')
+    groupvals = nanmedian(bandpower(selpatidx,bandidx,:),3) * 100;
+    patvals = nanmedian(bpower(bandidx,:),2) * 100;
 else
     groupvals = squeeze(mean(mean(graph{m,weiorbin}(selpatidx,bandidx,trange,:),4),3));
     patvals = squeeze(mean(mean(graphdata{m,weiorbin}(bandidx,trange,:),3),2));
 end
 
 plotvals = cat(1,groupvals,patvals);
-groupnames = cat(1,groupnames,{'Patient'});
+groupnames = cat(2,groupnames,{'Patient'});
 
 figure('Color','white','Name',basename)
-% boxplot(plotvals,[grp(selpatidx); max(grp(selpatidx))+1],'labels',groupnames,'symbol','r');
-plotgroups = [grp(selpatidx); max(grp(selpatidx))+1];
+% boxplot(plotvals,[groupvar(selpatidx); max(groupvar(selpatidx))+1],'labels',groupnames,'symbol','r');
+plotgroups = [groupvar(selpatidx); max(groupvar(selpatidx))+1];
 [plotgroups,~,uniqgroups] = unique(plotgroups);
 boxh = notBoxPlot(plotvals,uniqgroups,0.5,'patch',ones(length(plotvals),1));
 for h = 1:length(boxh)
