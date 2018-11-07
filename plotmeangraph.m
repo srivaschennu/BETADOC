@@ -51,14 +51,14 @@ for g = 1:length(groups)
     end
 end
 
-erange = [0 0.5];
+erange = [0 0.4];
 vrange = [0 0.4];
 
 plotgroups = 1:length(groups);
 for g = plotgroups
     while true
         minfo(g,:) = plotgraph3d(squeeze(groupcoh(g,:,:)),sortedlocs,'plotqt',plotqt,...
-            'escale',erange,'vscale',vrange,'cshift',0.4,'numcolors',5,'arcs','module');
+            'escale',erange,'vscale',vrange,'cshift',0.4,'numcolors',5,'arcs','strength');
         if strcmp(questdlg('Save figure?',mfilename,'Yes','No','Yes'), 'Yes')
             break
         end
