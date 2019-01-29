@@ -1,4 +1,4 @@
-function plotsess
+function plotonset
 
 loadsubj
 
@@ -7,34 +7,33 @@ betadoc = betadoc(2:end,:);
 subjnum = cellfun(@(x) str2num(x(2:3)), betadoc(:,1));
 uniqsubj = unique(subjnum);
 sessnum = cellfun(@(x) str2num(x(end)), betadoc(:,1));
-sessdates = cellfun(@makedate, betadoc(:,end));
-
+daysonset = cell2mat(betadoc(:,8));
 fontname = 'Helvetica';
 fontsize = 28;
 
 figure('Color','white');
 figpos = get(gcf,'Position');
-figpos(3) = figpos(3) * 2;
+%figpos(3) = figpos(3) * 2;
 figpos(4) = figpos(4) * 2;
 set(gcf,'Position',figpos);
 hold all
 
-firstdate = sessdates(1);
 for subjidx = 1:length(uniqsubj)
-    subjdates = sessdates(subjnum == uniqsubj(subjidx));
-    plot(days(subjdates - firstdate), ...
-        repmat(uniqsubj(subjidx),1,length(subjdates)), ...
-        'Marker','o','MarkerFaceColor', [0.75 1 0.75], 'LineWidth', 3, ...
-        'MarkerSize', 15, 'Color', [0.5  0 0.5]);
+    firstdate = find(subjnum == uniqsubj(subjidx),1);
+    plot([0 daysonset(firstdate)/365], ...
+        repmat(uniqsubj(subjidx),1,2), ...
+        'Marker','o','MarkerFaceColor', [1 0.75 0.75], 'MarkerIndices', 2, 'MarkerSize', 15, ...
+        'LineWidth', 3, 'Color', [0 0.5 0.5]);
 end
 
 set(gca,'FontName',fontname,'FontSize',fontsize);
 set(gca,'YDir','reverse','YMinorGrid','on','YLim',[1 length(uniqsubj)],'MinorGridLineStyle','-');
+set(gca,'XTick',0:2:10,'YTickLabel',[]);
+xlim([0 10]);
 box on
-xlabel('Days since start of data collection');
-ylabel('Patient');
-legend('Assessment','location','Best');
-print(gcf,'figures/plotsess.tif','-dtiff','-r300');
+xlabel('Years since onset');
+%ylabel('Patient');
+print(gcf,'figures/plotonset.tif','-dtiff','-r300');
 close(gcf);
 
 function sessdate = makedate(x)
