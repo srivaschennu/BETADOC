@@ -27,12 +27,11 @@ for subjidx = 1:length(uniqsubj)
 end
 
 set(gca,'FontName',fontname,'FontSize',fontsize);
-set(gca,'YDir','reverse','YMinorGrid','on','YLim',[1 length(uniqsubj)],'MinorGridLineStyle','-');
-set(gca,'XTick',0:2:10,'YTickLabel',[]);
+set(gca,'YDir','reverse','XDir','reverse','YMinorGrid','on','YLim',[1 length(uniqsubj)],'MinorGridLineStyle','-');
+set(gca,'XTick',0:2:10,'YAxisLocation','right');
 xlim([0 10]);
 box on
 xlabel('Years since onset');
-%ylabel('Patient');
 print(gcf,'figures/plotonset.tif','-dtiff','-r300');
 close(gcf);
 
