@@ -2,6 +2,10 @@ function plotsess
 
 loadsubj
 
+groupnames = {'UWS','MCS-','MCS+','EMCS'};
+
+edgecolor = [0.5  0 0.5];
+
 facecolorlist = [
     0.75  0.75 1
     0.25 1 0.25
@@ -30,27 +34,36 @@ set(gcf,'Position',figpos);
 hold all
 
 firstdate = sessdates(1);
+sessdays = zeros(size(sessdates));
 for subjidx = 1:length(uniqsubj)
-    subjdates = sessdates(subjnum == uniqsubj(subjidx));
-    firstdate = subjdates(1);
-    legendoff(plot(days(subjdates - firstdate), ...
-        repmat(uniqsubj(subjidx),1,length(subjdates)), ...
-        'LineWidth', 3, 'Color', [0.5  0 0.5]));
+    firstdate = sessdates(find(subjnum == uniqsubj(subjidx),1));
+    sessdays(subjnum == uniqsubj(subjidx)) = ...
+        days(sessdates(subjnum == uniqsubj(subjidx)) - firstdate);
+    legendoff(plot(sessdays(subjnum == uniqsubj(subjidx)), ...
+        repmat(uniqsubj(subjidx),1,sum(subjnum == uniqsubj(subjidx))), ...
+        'LineWidth', 3, 'Color', edgecolor));
         %'Marker','o','MarkerFaceColor', [0.75 1 0.75],
-    h = scatter(days(subjdates - firstdate), ...
-        repmat(uniqsubj(subjidx),1,length(subjdates)), ...
-        250, ...
-        [0.5 0 0.5],'filled');
-    h.CData = facecolorlist(crsdiag(subjnum == uniqsubj(subjidx))+1,:);
+end
+
+uniqcrs = unique(crsdiag);
+for crsidx = 1:length(uniqcrs)
+    scatter(sessdays(crsdiag == uniqcrs(crsidx)), ...
+        subjnum(crsdiag == uniqcrs(crsidx)), ...
+        250, 'LineWidth', 1, ...
+        'MarkerEdgeColor',edgecolor,'MarkerFaceColor',facecolorlist(crsidx,:));
 end
 
 set(gca,'FontName',fontname,'FontSize',fontsize);
 set(gca,'YDir','reverse','YMinorGrid','on','YLim',[1 length(uniqsubj)],'MinorGridLineStyle','-');
 box on
-xlabel('Days since first assessment');
+xlabel({'Times of CRS-R assessments relative to','recruitment into study (days)'});
 %ylabel('Patient');
 set(gca,'YTickLabel',[]);
-legend('UWS','MCS-','MCS+','EMCS','location','Best');
+[~,icons] = legend('UWS','MCS-','MCS+','EMCS','location','Best');
+for g = 1:length(groupnames)
+    set(icons(g+length(groupnames)).Children,'MarkerSize',16);
+end
+
 print(gcf,'figures/plotsess.tif','-dtiff','-r300');
 close(gcf);
 
