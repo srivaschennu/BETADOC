@@ -230,7 +230,7 @@ emcs = patlist(cell2mat(patlist(2:end,strcmp('crsdiag',covariates))) == 3,:);
 lis = patlist(cell2mat(patlist(2:end,strcmp('crsdiag',covariates))) == 4,:);
 
 betadoc = {
-%'name' 'refdiag' 'crsdiag' 'initdiag'  'tbi' 'age' 'male' 'daysonset' 'outcome' 'crs' 'auditory' 'visual' 'motor' 'verbal' 'communication' 'arousal' 'traj'	'morn' 'quarter' 'date'    
+'name' 'refdiag' 'crsdiag' 'initdiag'  'tbi' 'age' 'male' 'daysonset' 'outcome' 'crs' 'auditory' 'visual' 'motor' 'verbal' 'communication' 'arousal' 'traj'	'morn' 'quarter' 'date'    
 'p01_A_16_S1'	0	1  	1   0	21	0	1110	NaN     9	1	3	2	1	0	2	2	2	2   07062016
 'p01_A_16_S2'	0	1	1   0	21	0	1189	NaN     10	2	3	2	1	0	2	2	1	2   25082016
 'p01_A_16_S3'	0	1	1   0	21	0	1287	NaN     9	1	3	2	1	0	2	2	1	1   01122016
