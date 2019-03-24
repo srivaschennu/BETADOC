@@ -132,28 +132,28 @@ behaviour = subjlist(:,contains(subjlist.Properties.VariableNames, {...
 behaviour.subjnum = cellfun(@(x) str2num(x(2:3)), subjlist.name);
 behaviour.sessnum = cellfun(@(x) str2num(x(end)), subjlist.name);
 
-% trilidx = logical(tril(ones(91,91),-1));
-% eeg = squeeze(allcoh(:,3,trilidx(:)));
-% [~,eeg] = pca(eeg);
-% eeg = eeg(:,1:100);
-% eeg = array2table(eeg);
+trilidx = logical(tril(ones(91,91),-1));
+eeg = squeeze(allcoh(:,3,trilidx(:)));
+eeg = eigdecomp(eeg,50);
+eeg = array2table(eeg);
 
-eeg = table2array(eeg);
-behaviour = table2array(behaviour);
 num_cc = min(size(eeg,2),size(behaviour,2));
-if size(eeg,2) > num_cc
-    [~,eeg] = pca(eeg);
-    eeg = eeg(:,1:num_cc);
-elseif size(behaviour,2) > num_cc
-    [~,behaviour] = pca(behaviour);
-    behaviour = behaviour(:,1:num_cc);
-end
+
+% if size(eeg,2) > num_cc
+%     [~,eeg] = pca(table2array(eeg));
+%     eeg = array2table(eeg(:,1:num_cc));
+% elseif size(behaviour,2) > num_cc
+%     [~,behaviour] = pca(behaviour);
+%     behaviour = behaviour(:,1:num_cc);
+% end
 
 A = zeros(size(eeg,2),num_cc,num_rand+1);
 B = zeros(size(behaviour,2),num_cc,num_rand+1);
 r = zeros(num_cc,num_rand+1);
-U = zeros(size(eeg,1),num_cc);
-V = zeros(size(behaviour,1),num_cc);
+U = zeros(size(eeg,1),num_cc,num_rand+1);
+V = zeros(size(behaviour,1),num_cc,num_rand+1);
+X_ve = zeros(size(eeg,2),num_cc,num_rand+1);
+Y_ve = zeros(size(behaviour,2),num_cc,num_rand+1);
 
 fprintf('Running CCA with %d randomisations...', num_rand);
 for n = 1:num_rand+1
@@ -161,11 +161,18 @@ for n = 1:num_rand+1
         behaviour = behaviour(randperm(size(behaviour,1)),:);
         eeg = eeg(randperm(size(eeg,1)),:);
     end
-    [A(:,:,n),B(:,:,n),r(:,n),U(:,:,n),V(:,:,n)] = canoncorr(eeg,behaviour);
+    [A(:,:,n),B(:,:,n),r(:,n),U(:,:,n),V(:,:,n)] = canoncorr(table2array(eeg), table2array(behaviour));
+    for i = 1:num_cc
+        X_ve(:,i,n) = corr(table2array(eeg),U(:,i,n));
+        Y_ve(:,i,n) = corr(table2array(behaviour),V(:,i,n));
+    end
 end
+
+X_ve = X_ve .^ 2;
+Y_ve = Y_ve .^ 2;
 fprintf(' done.\n');
 
-save cca_results.mat A B r U V eeg behaviour
+save cca_results.mat A B r U V X_ve Y_ve eeg behaviour
 
 
 function score = runpca(X,tvals)
@@ -174,11 +181,18 @@ trange = (tvals <= trange(1) & tvals >= trange(2));
 
 score = mean(X(:,trange),2);
 
-%[~,score] = pca(X);
-%score = score(:,1);
+function eigvec = eigdecomp(data,num_keep)
 
-% function [rhosq, pval, data] = sortcorr(rho, pval, data)
-% rhosq = rho.^2;
-% [rhosq,sortidx] = sort(rhosq,'descend');
-% pval = pval(sortidx);
-% data = data(:,sortidx);
+eigvec = zeros(size(data,1));
+for i=1:size(data,1) % estimate "pairwise" covariance, ignoring missing data
+  for j=1:size(data,1)
+    grot=data([i j],:);
+    grot=cov(grot');
+    eigvec(i,j)=grot(1,2);
+  end
+end
+[~,p] = chol(eigvec);
+if p
+    eigvec = nearestSPD(eigvec);
+end
+[eigvec,~] = eigs(eigvec,num_keep);
