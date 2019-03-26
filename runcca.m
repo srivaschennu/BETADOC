@@ -132,20 +132,12 @@ behaviour = subjlist(:,contains(subjlist.Properties.VariableNames, {...
 behaviour.subjnum = cellfun(@(x) str2num(x(2:3)), subjlist.name);
 behaviour.sessnum = cellfun(@(x) str2num(x(end)), subjlist.name);
 
-trilidx = logical(tril(ones(91,91),-1));
-eeg = squeeze(allcoh(:,3,trilidx(:)));
-eeg = eigdecomp(eeg,50);
-eeg = array2table(eeg);
+% trilidx = logical(tril(ones(91,91),-1));
+% eeg = squeeze(allcoh(:,3,trilidx(:)));
+% eeg = eigdecomp(eeg,50);
+% eeg = array2table(eeg);
 
 num_cc = min(size(eeg,2),size(behaviour,2));
-
-% if size(eeg,2) > num_cc
-%     [~,eeg] = pca(table2array(eeg));
-%     eeg = array2table(eeg(:,1:num_cc));
-% elseif size(behaviour,2) > num_cc
-%     [~,behaviour] = pca(behaviour);
-%     behaviour = behaviour(:,1:num_cc);
-% end
 
 A = zeros(size(eeg,2),num_cc,num_rand+1);
 B = zeros(size(behaviour,2),num_cc,num_rand+1);
