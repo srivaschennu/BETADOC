@@ -148,32 +148,42 @@ eeg_corr = zeros(size(eeg,2),num_cc,num_rand+1);
 eeg_corrp = zeros(size(eeg,2),num_cc,num_rand+1);
 beh_corr = zeros(size(behaviour,2),num_cc,num_rand+1);
 beh_corrp = zeros(size(behaviour,2),num_cc,num_rand+1);
+uniqsubj = unique(behaviour.subjnum)';
 
 fprintf('Running CCA with %d randomisations...', num_rand);
 for n = 1:num_rand+1
     if n > 1
-        behaviour = behaviour(randperm(size(behaviour,1)),:);
-        eeg = eeg(randperm(size(eeg,1)),:);
+        uniqsubj = uniqsubj(randperm(length(uniqsubj)));
+        new_subj = zeros(size(behaviour,1),1);
+        i = 1;
+        for s = uniqsubj
+            numsess = sum(behaviour.subjnum == s);
+            new_subj(i:i + numsess - 1) = find(behaviour.subjnum == s);
+            i = i + numsess;
+        end
+        behaviour = behaviour(new_subj,:);
     end
     [A(:,:,n),B(:,:,n),r(:,n),U(:,:,n),V(:,:,n),stats(n)] = canoncorr(table2array(eeg), table2array(behaviour));
-    for i = 1:num_cc
-        [eeg_corr(:,i,n),eeg_corrp(:,i,n)] = corr(table2array(eeg),V(:,i,n));
-        [beh_corr(:,i,n),beh_corrp(:,i,n)] = corr(table2array(behaviour),U(:,i,n));
+    for c = 1:num_cc
+        [eeg_corr(:,c,n),eeg_corrp(:,c,n)] = corr(table2array(eeg),V(:,c,n));
+        [beh_corr(:,c,n),beh_corrp(:,c,n)] = corr(table2array(behaviour),U(:,c,n));
     end
 end
 
-eeg_corr = eeg_corr .^ 2;
-beh_corr = beh_corr .^ 2;
 fprintf(' done.\n');
 
-save cca_results.mat A B r U V eeg_corr eeg_corrp beh_corr beh_corrp stats eeg behaviour
+save([filepath cca_results.mat], 'A', 'B', 'r', 'U', 'V', 'eeg_corr', ...
+    'eeg_corrp', 'beh_corr', 'beh_corrp', 'stats', 'eeg', 'behaviour');
 
 
 function score = runpca(X,tvals)
 trange = [0.9 0.1];
 trange = (tvals <= trange(1) & tvals >= trange(2));
 
-score = mean(X(:,trange),2);
+% score = mean(X(:,trange),2);
+
+[~,score] = pca(X(:,trange));
+score = score(:,1);
 
 function eigvec = eigdecomp(data,num_keep)
 

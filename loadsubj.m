@@ -1,5 +1,5 @@
 patlist = {
-    'N','refdiag','crsdiag','petdiag','tennis','tbi?','age','male?','daysonset','outcome' 'crs'
+    'N','refdiag','crsdiag','petdiag','tennis','tbi','age','male','daysonset','outcome' 'crs'
     '1'     	1		0		1		0		0		49		1		2884	3		7
     '2'         1		2		1		NaN		0		27		0		1570	4		15
     '3'         0		2		1		NaN		1		27		1		1542	NaN		10
