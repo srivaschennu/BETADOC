@@ -90,6 +90,7 @@ for bandidx = 1:3
     pcoeff_std(:,bandidx) = runpca(squeeze(std(graph{8,3}(:,bandidx,:,:),[],4)),tvals);
     eeg_feat_names{featidx,bandidx} = 'std_pcoeff';
     eeg_feat_names{featidx,bandidx} = sprintf('%s_%s', eeg_feat_names{featidx,bandidx}, bands{bandidx});
+    featidx = featidx+1;
 end
 
 
@@ -108,72 +109,79 @@ eeg = cat(2, ...
     mspan, ...
     pcoeff_mean, ...
     pcoeff_std ...
-);
+    );
 
 eeg_feat_names = eeg_feat_names';
 eeg = array2table(eeg, ...
     'VariableNames', ...
-    eeg_feat_names);
+    eeg_feat_names(:));
 
-behaviour = subjlist(:,contains(subjlist.Properties.VariableNames, {...
+beh = subjlist(:,contains(subjlist.Properties.VariableNames, {...
+    'initdiag'
+    'crsdiag'
     'auditory'
     'visual'
     'motor'
     'verbal'
     'communication'
     'arousal'
-    'initdiag'
     'male'
     'age'
     'tbi'
     'daysonset'
     }));
 
-behaviour.subjnum = cellfun(@(x) str2num(x(2:3)), subjlist.name);
-behaviour.sessnum = cellfun(@(x) str2num(x(end)), subjlist.name);
+beh.subjnum = cellfun(@(x) str2num(x(2:3)), subjlist.name);
+beh.sessnum = cellfun(@(x) str2num(x(end)), subjlist.name);
+subjnum = beh.subjnum;
 
 % trilidx = logical(tril(ones(91,91),-1));
 % eeg = squeeze(allcoh(:,3,trilidx(:)));
 % eeg = eigdecomp(eeg,50);
 % eeg = array2table(eeg);
 
-num_cc = min(size(eeg,2),size(behaviour,2));
 
-A = zeros(size(eeg,2),num_cc,num_rand+1);
-B = zeros(size(behaviour,2),num_cc,num_rand+1);
+eeg_norm = palm_inormal(table2array(eeg));
+beh_norm = palm_inormal(table2array(beh));
+
+num_keep = 8;
+eeg_norm = eigdecomp(eeg_norm,num_keep);
+beh_norm = eigdecomp(beh_norm,num_keep);
+
+num_cc = min(size(eeg_norm,2),size(beh_norm,2));
+
+A = zeros(size(eeg_norm,2),num_cc,num_rand+1);
+B = zeros(size(beh_norm,2),num_cc,num_rand+1);
 r = zeros(num_cc,num_rand+1);
-U = zeros(size(eeg,1),num_cc,num_rand+1);
-V = zeros(size(behaviour,1),num_cc,num_rand+1);
+U = zeros(size(eeg_norm,1),num_cc,num_rand+1);
+V = zeros(size(beh_norm,1),num_cc,num_rand+1);
+
 eeg_corr = zeros(size(eeg,2),num_cc,num_rand+1);
 eeg_corrp = zeros(size(eeg,2),num_cc,num_rand+1);
-beh_corr = zeros(size(behaviour,2),num_cc,num_rand+1);
-beh_corrp = zeros(size(behaviour,2),num_cc,num_rand+1);
-uniqsubj = unique(behaviour.subjnum)';
+beh_corr = zeros(size(beh,2),num_cc,num_rand+1);
+beh_corrp = zeros(size(beh,2),num_cc,num_rand+1);
 
 fprintf('Running CCA with %d randomisations...', num_rand);
+
 for n = 1:num_rand+1
-    if n > 1
-        uniqsubj = uniqsubj(randperm(length(uniqsubj)));
-        new_subj = zeros(size(behaviour,1),1);
-        i = 1;
-        for s = uniqsubj
-            numsess = sum(behaviour.subjnum == s);
-            new_subj(i:i + numsess - 1) = find(behaviour.subjnum == s);
-            i = i + numsess;
-        end
-        behaviour = behaviour(new_subj,:);
+    if n == 1
+        eeg_rand = eeg_norm;
+        beh_rand = beh_norm;
+    elseif n > 1
+        eeg_rand = randomise(eeg_norm,subjnum);
+        beh_rand = randomise(beh_norm,subjnum);
     end
-    [A(:,:,n),B(:,:,n),r(:,n),U(:,:,n),V(:,:,n),stats(n)] = canoncorr(table2array(eeg), table2array(behaviour));
+    [A(:,:,n),B(:,:,n),r(:,n),U(:,:,n),V(:,:,n),stats(n)] = canoncorr(eeg_rand, beh_rand);
     for c = 1:num_cc
-        [eeg_corr(:,c,n),eeg_corrp(:,c,n)] = corr(table2array(eeg),V(:,c,n));
-        [beh_corr(:,c,n),beh_corrp(:,c,n)] = corr(table2array(behaviour),U(:,c,n));
+        [eeg_corr(:,c,n),eeg_corrp(:,c,n)] = corr(table2array(eeg),U(:,c,n));
+        [beh_corr(:,c,n),beh_corrp(:,c,n)] = corr(table2array(beh),V(:,c,n));
     end
 end
 
 fprintf(' done.\n');
 
-save([filepath cca_results.mat], 'A', 'B', 'r', 'U', 'V', 'eeg_corr', ...
-    'eeg_corrp', 'beh_corr', 'beh_corrp', 'stats', 'eeg', 'behaviour');
+save([filepath 'cca_results.mat'], 'A', 'B', 'r', 'U', 'V', 'eeg_corr', ...
+    'eeg_corrp', 'beh_corr', 'beh_corrp', 'stats', 'eeg', 'beh');
 
 
 function score = runpca(X,tvals)
@@ -189,14 +197,27 @@ function eigvec = eigdecomp(data,num_keep)
 
 eigvec = zeros(size(data,1));
 for i=1:size(data,1) % estimate "pairwise" covariance, ignoring missing data
-  for j=1:size(data,1)
-    grot=data([i j],:);
-    grot=cov(grot');
-    eigvec(i,j)=grot(1,2);
-  end
+    for j=1:size(data,1)
+        grot=data([i j],:);
+        grot=cov(grot');
+        eigvec(i,j)=grot(1,2);
+    end
 end
 [~,p] = chol(eigvec);
 if p
     eigvec = nearestSPD(eigvec);
 end
 [eigvec,~] = eigs(eigvec,num_keep);
+
+function data = randomise(data,subjnum)
+uniqsubj = unique(subjnum)';
+
+randsubj = uniqsubj(randperm(length(uniqsubj)));
+rand_order = zeros(size(data,1),1);
+i = 1;
+for s = randsubj
+    numsess = sum(subjnum == s);
+    rand_order(i:i + numsess - 1) = find(subjnum == s);
+    i = i + numsess;
+end
+data = data(rand_order,:);

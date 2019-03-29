@@ -15,21 +15,36 @@ num_rand = size(r,2)-1;
 % eeg_corr = (eeg_corr .^ 2);% .* sign(eeg_corr);
 % beh_corr = (beh_corr .^ 2);% .* sign(beh_corr);
 
+r_sig = find(perm_fwer(r) < alpha);
 figure('Color','white');
 hold all
 plot(r(:,1),'-s','LineWidth',2,'MarkerFaceColor','auto');
+plot(r_sig,r(r_sig,1),'*','LineWidth',2);
 bar(mean(r(:,2:end),2));
 errorbar(mean(r(:,2:end),2), ...
     std(r(:,2:end),[],2), '.','LineWidth',2);
 xlim([0 size(r,1)+1]);
 set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
 
-sig_cc = find(stats(1).pF < alpha);
+for i = 1:2
+    if i == 1
+        tot_ve = squeeze(sum(eeg_corr.^2,1));
+    else
+        tot_ve = squeeze(sum(beh_corr.^2,1));
+    end
+    figure('Color','white');
+    hold all
+    plot(tot_ve(:,1),'-s','LineWidth',2,'MarkerFaceColor','auto');
+    bar(mean(tot_ve(:,2:end),2));
+    errorbar(mean(tot_ve(:,2:end),2), ...
+        std(tot_ve(:,2:end),[],2), '.','LineWidth',2);
+    xlim([0 size(r,1)+1]);
+    set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
+end
 
-eeg_corr = eeg_corr .^2;
-eeg_corr = sum(eeg_corr(:,1:3,:),2);
+sig_cc = 4;%find(stats(1).pF < alpha);
 
-for i = 1%sig_cc
+for i = sig_cc
     fig_h = figure('Color','white','Name',sprintf('Canonical variable %d', i));
     set(fig_h,'Position', [fig_h.Position(1) fig_h.Position(2) fig_h.Position(3)*2 fig_h.Position(4)*2]);
 
@@ -41,12 +56,13 @@ for i = 1%sig_cc
     
     plot_corr = squeeze(eeg_corr(:,i,:));
     plot_corrp = find(perm_fwer(squeeze(eeg_corr(:,i,:))) < alpha);
-    
+        
     subplot(2,1,1);
     hold all
+    boxplot(plot_corr(:,2:end)','PlotStyle','compact','Symbol','');
+    pause(0.5);
     plot(plot_corr(:,1),'-s','LineWidth',2,'MarkerFaceColor','auto');
     plot(plot_corrp,plot_corr(plot_corrp,1),'*','LineWidth',2);
-    boxplot(plot_corr(:,2:end)','PlotStyle','compact','Symbol','');
 %     bar(mean(plot_corr(:,2:end),2));
 %     errorbar(mean(plot_corr(:,2:end),2), ...
 %         std(plot_corr(:,2:end),[],2), '.','LineWidth',2);
@@ -61,9 +77,10 @@ for i = 1%sig_cc
     
     subplot(2,1,2);
     hold all
+    boxplot(plot_corr(:,2:end)','PlotStyle','compact','Symbol','');
+    pause(0.5);
     plot(plot_corr(:,1),'-s','LineWidth',2,'MarkerFaceColor','auto');
     plot(plot_corrp,plot_corr(plot_corrp,1),'*','LineWidth',2);
-    boxplot(plot_corr(:,2:end)','PlotStyle','compact','Symbol','');
     %     bar(mean(plot_corr(:,2:end),2));
 %     errorbar(mean(plot_corr(:,2:end),2), ...
 %         std(plot_corr(:,2:end),[],2), '.','LineWidth',2);
