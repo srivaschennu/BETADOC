@@ -140,13 +140,12 @@ subjnum = beh.subjnum;
 % eeg = eigdecomp(eeg,50);
 % eeg = array2table(eeg);
 
-
 eeg_norm = palm_inormal(table2array(eeg));
 beh_norm = palm_inormal(table2array(beh));
 
-num_keep = 8;
-eeg_norm = eigdecomp(eeg_norm,num_keep);
-beh_norm = eigdecomp(beh_norm,num_keep);
+% num_keep = 8;
+% eeg_norm = eigdecomp(eeg_norm,num_keep);
+% beh_norm = eigdecomp(beh_norm,num_keep);
 
 num_cc = min(size(eeg_norm,2),size(beh_norm,2));
 

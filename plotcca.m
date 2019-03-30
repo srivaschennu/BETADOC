@@ -42,7 +42,7 @@ for i = 1:2
     set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
 end
 
-sig_cc = 4;%find(stats(1).pF < alpha);
+sig_cc = 1;
 
 for i = sig_cc
     fig_h = figure('Color','white','Name',sprintf('Canonical variable %d', i));
@@ -85,7 +85,7 @@ for i = sig_cc
 %     errorbar(mean(plot_corr(:,2:end),2), ...
 %         std(plot_corr(:,2:end),[],2), '.','LineWidth',2);
     xticks(1:size(plot_corr,1));
-    xticklabels(behaviour.Properties.VariableNames(xticks)); xtickangle(45);
+    xticklabels(beh.Properties.VariableNames(xticks)); xtickangle(45);
     xlim([0 size(plot_corr,1)+1]);
     title('Canonical to Behaviour correlation');
     set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
