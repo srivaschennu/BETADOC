@@ -140,10 +140,13 @@ subjnum = beh.subjnum;
 % eeg = eigdecomp(eeg,50);
 % eeg = array2table(eeg);
 
-eeg_norm = palm_inormal(table2array(eeg));
-beh_norm = palm_inormal(table2array(beh));
+% eeg_norm = palm_inormal(table2array(eeg));
+% beh_norm = palm_inormal(table2array(beh));
 
-% num_keep = 8;
+eeg_norm = table2array(eeg);
+beh_norm = table2array(beh);
+
+% num_keep = 10;
 % eeg_norm = eigdecomp(eeg_norm,num_keep);
 % beh_norm = eigdecomp(beh_norm,num_keep);
 
@@ -165,15 +168,17 @@ fprintf('Running CCA with %d randomisations...', num_rand);
 for n = 1:num_rand+1
     if n == 1
         eeg_rand = eeg_norm;
+        rand_eeg_ord = 1:size(eeg_rand,1);
         beh_rand = beh_norm;
+        rand_beh_ord = 1:size(beh_rand,1);
     elseif n > 1
-        eeg_rand = randomise(eeg_norm,subjnum);
-        beh_rand = randomise(beh_norm,subjnum);
+        [eeg_rand,rand_eeg_ord] = randomise(eeg_norm,subjnum);
+        [beh_rand,rand_beh_ord] = randomise(beh_norm,subjnum);
     end
     [A(:,:,n),B(:,:,n),r(:,n),U(:,:,n),V(:,:,n),stats(n)] = canoncorr(eeg_rand, beh_rand);
     for c = 1:num_cc
-        [eeg_corr(:,c,n),eeg_corrp(:,c,n)] = corr(table2array(eeg),U(:,c,n));
-        [beh_corr(:,c,n),beh_corrp(:,c,n)] = corr(table2array(beh),V(:,c,n));
+        [eeg_corr(:,c,n),eeg_corrp(:,c,n)] = corr(table2array(eeg(rand_eeg_ord,:)),U(:,c,n));
+        [beh_corr(:,c,n),beh_corrp(:,c,n)] = corr(table2array(beh(rand_beh_ord,:)),V(:,c,n));
     end
 end
 
@@ -208,7 +213,10 @@ if p
 end
 [eigvec,~] = eigs(eigvec,num_keep);
 
-function data = randomise(data,subjnum)
+function [data,rand_order] = randomise(data,subjnum)
+% rand_order = randperm(size(data,1));
+% data = data(rand_order,:);
+
 uniqsubj = unique(subjnum)';
 
 randsubj = uniqsubj(randperm(length(uniqsubj)));
