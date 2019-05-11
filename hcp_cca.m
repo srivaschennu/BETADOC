@@ -58,7 +58,9 @@ varskeep=setdiff([1:size(vars,2)],[1 6 267:457 ...                            % 
 %%% "impute" missing vars data - actually this avoids any imputation
 varsd=palm_inormal(vars(:,varskeep)); % Gaussianise
 for i=1:size(varsd,2) % deconfound ignoring missing data
-  grot=(isnan(varsd(:,i))==0); grotconf=nets_demean(conf(grot,:)); varsd(grot,i)=normalise(varsd(grot,i)-grotconf*(pinv(grotconf)*varsd(grot,i)));
+  grot=(isnan(varsd(:,i))==0);
+  grotconf=nets_demean(conf(grot,:));
+  varsd(grot,i)=normalise(varsd(grot,i)-grotconf*(pinv(grotconf)*varsd(grot,i)));
 end
 varsdCOV=zeros(size(varsd,1));
 for i=1:size(varsd,1) % estimate "pairwise" covariance, ignoring missing data
