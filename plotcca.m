@@ -9,6 +9,39 @@ alpha = 0.05;
 fontname = 'Helvetica';
 fontsize = 16;
 
+
+[all_corr, all_p] = corr(table2array(beh), table2array(eeg));
+[~, max_idx] = max(all_corr(:));
+[beh_idx, eeg_idx] = ind2sub(size(all_corr),max_idx);
+
+figure('Color','white','Name','Best pairwise correlation');
+hold all
+legendoff(scatter(table2array(beh(:,beh_idx)),table2array(eeg(:,eeg_idx)),50,'filled','MarkerEdgeColor','black'));
+Fit = polyfit(table2array(beh(:,beh_idx)),table2array(eeg(:,eeg_idx)),1);
+plot(sort(table2array(beh(:,beh_idx))), polyval(Fit,sort(table2array(beh(:,beh_idx)))), ...
+    'LineStyle', '-.', 'Color', 'black', 'LineWidth', 2, ...
+    'DisplayName',sprintf('r = %.2f, p = %.4f', all_corr(beh_idx,eeg_idx),all_p(beh_idx,eeg_idx)));
+legend toggle
+legend boxoff
+set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
+xlabel(beh.Properties.VariableNames(beh_idx));
+ylabel(eeg.Properties.VariableNames(eeg_idx));
+
+[cca_corr, cca_p] = corr(U(:,:,1),V(:,:,1));
+figure('Color','white','Name','Canonical covariate correlation');
+hold all
+
+legendoff(scatter(U(:,1,1),V(:,1,1),50,'filled','MarkerEdgeColor','black'));
+Fit = polyfit(U(:,1,1),V(:,1,1),1);
+plot(sort(U(:,1,1)), polyval(Fit,sort(U(:,1,1))), ...
+    'LineStyle', '-.', 'Color', 'black', 'LineWidth', 2, ...
+    'DisplayName',sprintf('r = %.2f, p = %.4f', cca_corr(1,1),cca_p(1,1)));
+legend toggle
+legend boxoff
+set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
+xlabel('Behavioural canonical variate');
+ylabel('EEG canonical variate');
+
 num_cc = size(r,1);
 num_rand = size(r,2)-1;
 
@@ -43,6 +76,12 @@ set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
 
 sig_cc = find(stats(1).pF < alpha);
 
+siglevels = {
+    0.001   'o'
+    0.01    '+'
+    0.05    '*'
+    };
+    
 for i = sig_cc
     fig_h = figure('Color','white','Name',sprintf('Canonical variable %d', i));
     set(fig_h,'Position', [fig_h.Position(1) fig_h.Position(2) fig_h.Position(3)*2 fig_h.Position(4)*2]);
@@ -50,9 +89,11 @@ for i = sig_cc
     for j = 1:2
         if j == 1
             plot_corr = eeg_corr(:,i,1);
+            plot_corrp = eeg_corrp(:,i,1);
             varnames = eeg.Properties.VariableNames;
         else
             plot_corr = beh_corr(:,i,1);
+            plot_corrp = beh_corrp(:,i,1);
             varnames = beh.Properties.VariableNames;
         end
         
@@ -62,6 +103,14 @@ for i = sig_cc
         hold all
         bar(plot_corr(sortidx));
         xticks(1:length(plot_corr));
+        
+        if j == 1
+            fprintf('Canonical covariate %d to EEG correlation p-values (in sorted order):\n', i);
+        else
+            fprintf('Canonical covariate %d to behaviour correlation p-values (in sorted order):\n', i);
+        end
+        
+        disp(plot_corrp(sortidx));
         
         varnames = varnames(sortidx);
         xticklabels(varnames(xticks)); xtickangle(45);
