@@ -9,6 +9,67 @@ alpha = 0.05;
 fontname = 'Helvetica';
 fontsize = 16;
 
+eeg_varlabels = {
+    '\mu(\delta power)'
+    '\mu(\theta power)'
+    '\mu(\alpha power)'
+    '\sigma(\delta power)'
+    '\sigma(\theta power)'
+    '\sigma(\alpha power)'
+    '\nu(\delta dwPLI)'
+    '\nu(\theta dwPLI)'
+    '\nu(\alpha dwPLI)'
+    '\sigma(\delta dwPLI)'
+    '\sigma(\theta dwPLI)'
+    '\sigma(\alpha dwPLI)'
+    '\mu(\delta clustering coeff.)'
+    '\mu(\theta clustering coeff.)'
+    '\mu(\alpha clustering coeff.)'
+    '\sigma(\delta clustering coeff.)'
+    '\sigma(\theta clustering coeff.)'
+    '\sigma(\alpha clustering coeff.)'
+    '\delta char. path length'
+    '\theta char. path length'
+    '\alpha char. path length'
+    '\delta global eff.'
+    '\theta global eff.'
+    '\alpha global eff.'
+    '\delta modularity'
+    '\theta modularity'
+    '\alpha modularity'
+    '\mu(\delta centrality)'
+    '\mu(\theta centrality)'
+    '\mu(\alpha centrality)'
+    '\sigma(\delta centrality)'
+    '\sigma(\theta centrality)'
+    '\sigma(\alpha centrality)'
+    '\delta modular span'
+    '\theta modular span'
+    '\alpha modular span'
+    '\mu(\delta participation coeff.)'
+    '\mu(\theta participation coeff.)'
+    '\mu(\alpha participation coeff.)'
+    '\sigma(\delta participation coeff.)'
+    '\sigma(\theta participation coeff.)'
+    '\sigma(\alpha participation coeff.)'
+    };
+
+beh_varlabels = {
+    'CRS-R diagnosis'
+    'Initial Diagnosis'
+    'Traumatic etiology?'
+    'Age'
+    'Male?'
+    'Days since injury onset'
+    'CRS-R auditory'
+    'CRS-R visual'
+    'CRS-R motor'
+    'CRS-R verbal'
+    'CRS-R communication'
+    'CRS-R arousal'
+    'Patient number'
+    'Assessment number'
+    };
 
 [all_corr, all_p] = corr(table2array(beh), table2array(eeg));
 [~, max_idx] = max(all_corr(:));
@@ -83,40 +144,46 @@ siglevels = {
     };
     
 for i = sig_cc
-    fig_h = figure('Color','white','Name',sprintf('Canonical variable %d', i));
-    set(fig_h,'Position', [fig_h.Position(1) fig_h.Position(2) fig_h.Position(3)*2 fig_h.Position(4)*2]);
+%     fig_h = figure('Color','white','Name',sprintf('Canonical variable %d', i));
+%     set(fig_h,'Position', [fig_h.Position(1) fig_h.Position(2) fig_h.Position(3)*2 fig_h.Position(4)*2]);
     
     for j = 1:2
         if j == 1
             plot_corr = eeg_corr(:,i,1);
             plot_corrp = eeg_corrp(:,i,1);
-            varnames = eeg.Properties.VariableNames;
+            varlabels = eeg_varlabels;
+            title_text = 'clinical';
         else
             plot_corr = beh_corr(:,i,1);
             plot_corrp = beh_corrp(:,i,1);
-            varnames = beh.Properties.VariableNames;
+            varlabels = beh_varlabels;
+            title_text = 'EEG';
         end
         
         plot_corr = (plot_corr .^ 2 .* sign(plot_corr));
         [~,sortidx] = sort(abs(plot_corr),'descend');
-        subplot(2,1,j);
-        hold all
-        bar(plot_corr(sortidx));
-        xticks(1:length(plot_corr));
+%         subplot(2,1,j);
+%         hold all
+%         bar(plot_corr(sortidx));
+%         xticks(1:length(plot_corr));
+%         
+%         if j == 1
+%             fprintf('Canonical covariate %d to EEG correlation p-values (in sorted order):\n', i);
+%         else
+%             fprintf('Canonical covariate %d to behaviour correlation p-values (in sorted order):\n', i);
+%         end
+%         
+%         disp(plot_corrp(sortidx));
+%         
+%         varlabels = varlabels(sortidx);
+%         xticklabels(varlabels(xticks)); xtickangle(45);
+%         xlim([0 size(plot_corr,1)+1]);
+%         title({sprintf('r = %.2f, p = %.3f', r(i,1), stats(1).pF(i)), sprintf('Canonical to %s correlation', title_text)});
+%         set(gca,'FontSize',fontsize,'FontName',fontname);
         
-        if j == 1
-            fprintf('Canonical covariate %d to EEG correlation p-values (in sorted order):\n', i);
-        else
-            fprintf('Canonical covariate %d to behaviour correlation p-values (in sorted order):\n', i);
-        end
-        
-        disp(plot_corrp(sortidx));
-        
-        varnames = varnames(sortidx);
-        xticklabels(varnames(xticks)); xtickangle(45);
-        xlim([0 size(plot_corr,1)+1]);
-        title({sprintf('r = %.2f, p = %.3f', r(i,1), stats(1).pF(i)),'Canonical to EEG correlation'});
-        set(gca,'FontSize',fontsize,'FontName',fontname,'TickLabelInterpreter','none');
+        textplot(plot_corr(sortidx), plot_corrp(sortidx), varlabels(sortidx), title_text);
+        title({sprintf('Canonical variable %d', i), sprintf('r = %.2f, p = %.3f', r(i,1), stats(1).pF(i))});
+        set(gcf,'Name', sprintf('Canonical variable %d', i))
     end
 end
 
