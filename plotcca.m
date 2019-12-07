@@ -181,7 +181,7 @@ for i = sig_cc
 %         title({sprintf('r = %.2f, p = %.3f', r(i,1), stats(1).pF(i)), sprintf('Canonical to %s correlation', title_text)});
 %         set(gca,'FontSize',fontsize,'FontName',fontname);
         
-        textplot(plot_corr(sortidx), plot_corrp(sortidx), varlabels(sortidx), title_text);
+        corrplot(plot_corr(sortidx), plot_corrp(sortidx), varlabels(sortidx), title_text);
         title({sprintf('Canonical variable %d', i), sprintf('r = %.2f, p = %.3f', r(i,1), stats(1).pF(i))});
         set(gcf,'Name', sprintf('Canonical variable %d', i))
     end
