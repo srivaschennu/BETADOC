@@ -194,7 +194,7 @@ trange = (tvals <= trange(1) & tvals >= trange(2));
 
 % score = mean(X(:,trange),2);
 
-[~,score] = pca(X(:,trange));
+[~,score,~,~,explained] = pca(X(:,trange));
 score = score(:,1);
 
 function eigvec = eigdecomp(data,num_keep)
